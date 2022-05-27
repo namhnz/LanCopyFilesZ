@@ -1,0 +1,73 @@
+﻿<Window x:Class="LanCopyFiles.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LanCopyFiles"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="900"
+        Style="{StaticResource UiWindow}"
+        WindowStartupLocation="CenterScreen"
+        xmlns:wpfui="clr-namespace:WPFUI.Controls;assembly=WPFUI"
+        xmlns:pages="clr-namespace:LanCopyFiles.Pages" Closed="Window_Closed">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="137*"/>
+            <ColumnDefinition Width="263*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <wpfui:NavigationStore
+                x:Name="RootNavigation"
+                Grid.Column="0"
+                Margin="6,0,6,0"
+                Frame="{Binding ElementName=RootFrame}">
+                <wpfui:NavigationStore.Items>
+
+                    <wpfui:NavigationItem
+                        Content="Send"
+                        Icon="DocumentArrowUp16"
+                        PageTag="send-data-page"
+                        Page="{x:Type pages:SendFilesBoard}" />
+                    <wpfui:NavigationItem
+                        Content="Receive"
+                        Icon="DocumentArrowDown16"
+                        PageTag="receive-data-page"
+                        Page="{x:Type pages:ReceiveFilesBoard}" />
+                </wpfui:NavigationStore.Items>
+            </wpfui:NavigationStore>
+
+            <Border
+                Grid.Column="1"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                CornerRadius="8,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Frame x:Name="RootFrame" Grid.Row="1" />
+                    <wpfui:Breadcrumb
+                        Margin="18,18,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        FontSize="24"
+                        Navigation="{Binding ElementName=RootNavigation}" 
+                        Grid.Row="0"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <wpfui:TitleBar
+            Title="LAN Files Copy" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
+    </Grid>
+</Window>

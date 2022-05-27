@@ -1,0 +1,101 @@
+﻿<Page x:Class="LanCopyFiles.Pages.SendFilesBoard"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:LanCopyFiles.Pages"
+      mc:Ignorable="d"
+      d:DesignHeight="450" d:DesignWidth="800"
+      xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="SendFilesBoard">
+    <VirtualizingStackPanel
+        Margin="18,0,18,18"
+        IsVirtualizing="True"
+        VirtualizationMode="Recycling">
+
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="16"
+            Text="Where to send files" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="0,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Destination IP Address" />
+                <wpfui:TextBox Margin="0,8,0,0" Placeholder="192.168.1.2" 
+                               x:Name="serverIPTextBox"/>
+            </StackPanel>
+            <StackPanel
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="0,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Port" />
+                <wpfui:TextBox Margin="0,8,0,0" Placeholder="8085" 
+                               x:Name="serverPortTextBox"/>
+            </StackPanel>
+        </Grid>
+
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="16"
+            Text="Send files/folder" />
+        <StackPanel Margin="0 8 4 0"
+                    AllowDrop="True"
+                    x:Name="FilesPickerContainerStackPanel"
+                    Drop="FilesPickerContainerStackPanel_OnDrop">
+            <StackPanel.Resources>
+                <ContextMenu x:Key="filesOrFoldersPickerContextMenu"  StaysOpen="true">
+                    <MenuItem Header="Paste" Click="FilesOrFoldersPickerContextMenuPasteItem_OnClick" />
+                </ContextMenu>
+            </StackPanel.Resources>
+            <wpfui:CardAction
+                Icon="SquareHintArrowBack16"
+                Name="FilesPickerCardAction"
+                Click="FilesPickerCardAction_OnClick"
+                MouseDoubleClick="FilesPickerCardAction_OnMouseDoubleClick"
+                ContextMenu="{StaticResource filesOrFoldersPickerContextMenu}">
+                <StackPanel>
+                    <TextBlock
+                        Margin="0,0,0,4"
+                        FontWeight="Medium"
+                        Text="Choose files/folders" />
+
+                    <TextBlock Text="1. Drag and drop files/folders here to copy to another device" 
+                               FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"></TextBlock>
+                    <TextBlock Text="2. Right click and paste files/folder from clipboard to copy to another device"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"></TextBlock>
+                    <TextBlock Text="3. Click to open browser window choosing files to copy to another device"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"></TextBlock>
+                    <TextBlock Text="4. Double click to open browser window choosing folders to copy to another device"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"></TextBlock>
+                </StackPanel>
+            </wpfui:CardAction>
+        </StackPanel>
+
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="16"
+            Text="Copy status" />
+        <StackPanel Margin="0 8 4 0">
+            <ProgressBar Margin="0,8,0,0" Value="0" 
+                         x:Name="CopyingProgressBar"/>
+
+            <wpfui:TextBox Margin="0,8,0,0"
+                           IsReadOnly="True"
+                           x:Name="CopyingStatusTextBox">
+            </wpfui:TextBox>
+            
+        </StackPanel>
+
+        
+    </VirtualizingStackPanel>
+</Page>
