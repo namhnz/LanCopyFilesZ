@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Threading;
 using EasyFileTransfer;
 using LanCopyFiles.Services;
+using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.FileSystemAnalyze;
 
 namespace LanCopyFiles
@@ -42,6 +43,10 @@ namespace LanCopyFiles
         // Nguon: https://stackoverflow.com/q/2688923/7182661
         private void Window_Closed(object sender, EventArgs e)
         {
+            // Xoa toan bo cac file trong thu muc temp
+            AppTempFolder.DeleteAllFilesInTempFolder();
+
+            // Thoat hoan toan tat ca cac thread
             Environment.Exit(Environment.ExitCode);
         }
         

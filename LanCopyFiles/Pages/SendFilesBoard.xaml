@@ -87,7 +87,8 @@
             Text="Copy status" />
         <StackPanel Margin="0 8 4 0">
             <ProgressBar Margin="0,8,0,0" Value="0" 
-                         x:Name="CopyingProgressBar"/>
+                         x:Name="CopyingProgressBar"
+                         IsIndeterminate="False"/>
 
             <wpfui:TextBox Margin="0,8,0,0"
                            IsReadOnly="True"

@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using EasyFileTransfer;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Services;
+using LanCopyFiles.Services.FilePrepare;
 using Ookii.Dialogs.Wpf;
 using SharpConfig;
 
@@ -40,8 +41,10 @@ namespace LanCopyFiles.Pages
             InitUpdateProgressBarTimer();
         }
 
+        #region Phan thuc thi khi drag/drop cac file hoac folder vao panel
+
         // Nguon: https://stackoverflow.com/a/5663329/7182661
-        private void FilesPickerContainerStackPanel_OnDrop(object sender, DragEventArgs e)
+        private async void FilesPickerContainerStackPanel_OnDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -51,11 +54,15 @@ namespace LanCopyFiles.Pages
                 // Assuming you have one file that you care about, pass it off to whatever
                 // handling code you have defined.
                 // HandleFileOpen(files[0]);
-                MessageBox.Show(files[0]);
+
+                await StartCopyingProcess(files);
             }
         }
 
+        #endregion
+
         #region Su dung de phan biet click va double click
+
         // Nguon: https://stackoverflow.com/a/971676/7182661
         private DispatcherTimer _filesOrFoldersPickerContainerClickWaitTimer;
 
@@ -76,43 +83,20 @@ namespace LanCopyFiles.Pages
             // Handle Single Click Actions
             Trace.WriteLine("Single Click");
 
-            var filesSelectDialog = new VistaOpenFileDialog();
-            filesSelectDialog.Multiselect = true;
-
-            var selectResult = filesSelectDialog.ShowDialog();
-            
-            if (selectResult ?? false)
-            {
-                // string path = filesSelectDialog.FileName;
-                // MessageBox.Show(path);
-                var filePaths = filesSelectDialog.FileNames;
-
-                try
-                {
-                    var copyResults = await SendFilesToServer(filePaths, this.serverIPTextBox.Text,
-                        int.Parse(serverPortTextBox.Text));
-                    var successCopiedFilesCount = copyResults.Count(x => x);
-
-                    MessageBox.Show(
-                        $"Copied {successCopiedFilesCount} file(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
-                }
-                catch (Exception ex)
-                {
-                    ResetCopyingStatusText();
-                    MessageBox.Show("An error has happened: " + ex.Message);
-
-                    Trace.WriteLine(ex);
-                }
-            }
+            // Do chi su dung 1 click nen hien thi hop thoai chon cac file
+            await ShowFilesSelectDialog();
         }
 
         #endregion
+
+        #region Phan thuc thi khi click/double click vao panel de lua chon cac file hoac folder
 
         private void FilesPickerCardAction_OnClick(object sender, RoutedEventArgs e)
         {
             _filesOrFoldersPickerContainerClickWaitTimer.Start();
         }
 
+        // Click 2 lan chuot de chon cac folder can copy, khong co file
         private void FilesPickerCardAction_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // Stop the timer from ticking.
@@ -121,36 +105,75 @@ namespace LanCopyFiles.Pages
             Trace.WriteLine("Double Click");
             e.Handled = true;
 
-            var foldersSelectDialog = new VistaFolderBrowserDialog();
-            var selectResult = foldersSelectDialog.ShowDialog();
-
-            if (selectResult ?? false)
-            {
-                string path = foldersSelectDialog.SelectedPath;
-                MessageBox.Show(path);
-            }
+            // Nhan dup chuot nen hien thi hop thoai lua chon cac folder
+            ShowFoldersSelectDialog();
         }
-        
-        private void FilesOrFoldersPickerContextMenuPasteItem_OnClick(object sender, RoutedEventArgs e)
+
+        #endregion
+
+        #region Hien thi dialog lua chon chi cac file
+
+        private async Task ShowFilesSelectDialog()
         {
-            // Stop the timer from ticking.
-            _filesOrFoldersPickerContainerClickWaitTimer.Stop();
+            var filesSelectDialog = new VistaOpenFileDialog();
+            filesSelectDialog.Multiselect = true;
 
-            Trace.WriteLine("Double Click");
-            e.Handled = true;
+            var selectResult = filesSelectDialog.ShowDialog();
 
+            if (selectResult ?? false)
+            {
+                var filePaths = filesSelectDialog.FileNames;
+
+                await StartCopyingProcess(filePaths);
+            }
+        }
+
+        #endregion
+
+        #region Hien thi dialog lua chon chi cac thu muc
+
+        private async Task ShowFoldersSelectDialog()
+        {
             var foldersSelectDialog = new VistaFolderBrowserDialog();
+            foldersSelectDialog.Multiselect = true;
+
             var selectResult = foldersSelectDialog.ShowDialog();
 
             if (selectResult ?? false)
             {
-                string path = foldersSelectDialog.SelectedPath;
+                var folderPaths = foldersSelectDialog.SelectedPaths;
 
-
-
-                // MessageBox.Show(path);
+                await StartCopyingProcess(folderPaths);
             }
         }
+
+        #endregion
+
+
+        #region Phan thuc thi khi su dung chuot phai copy/paste vao panel 
+
+        private async void FilesOrFoldersPickerContextMenuPasteItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            // MessageBox.Show("Pasting");
+            // Nguon: https://stackoverflow.com/a/68001651/7182661
+            if (Clipboard.ContainsFileDropList())
+            {
+                var filesArray = Clipboard.GetFileDropList();
+                //now you have a array of file address 
+                // MessageBox.Show(string.Join("|", filesArray.Cast<string>().ToList()));
+
+                await StartCopyingProcess(filesArray.Cast<string>().ToArray());
+            }
+            else if (Clipboard.ContainsText())
+            {
+                var fileName = Clipboard.GetText();
+            }
+        }
+
+        #endregion
+
+
+        #region Gui cac file den server
 
         private async Task<List<bool>> SendFilesToServer(string[] filePaths, string serverIP, int serverPort)
         {
@@ -161,7 +184,7 @@ namespace LanCopyFiles.Pages
             {
                 throw new ArgumentException("Invalid destination IP address or port");
             }
-            
+
             // Kiem tra xem co ket noi duoc den server khong
             await Task.Run(() =>
             {
@@ -184,10 +207,9 @@ namespace LanCopyFiles.Pages
 
             _updateProgressBarTimer.Start();
             _countTotalFilesAndFoldersCopying = filePaths.Length;
-            
+
             var copyResultTask = await Task.Run(() =>
             {
-
                 var sendFileResults = new List<bool>();
 
                 for (int i = 0; i < filePaths.Length; i++)
@@ -244,12 +266,14 @@ namespace LanCopyFiles.Pages
 
                 CopyingProgressBar.SetPercent(EftClient.ProgressValue * 1 /
                                               (double)_countTotalFilesAndFoldersCopying +
-                                              100 * _fileOrFolderCopyingIndex / (double)_countTotalFilesAndFoldersCopying);
+                                              100 * _fileOrFolderCopyingIndex /
+                                              (double)_countTotalFilesAndFoldersCopying);
 
                 Trace.WriteLine($"Dang copy: {CopyingProgressBar.Value}%");
 
                 // Hien thi len thong bao trang thai
-                SetCopyingStatusText($"Copying file {_copyingFileOrFolderName}: {Math.Ceiling(CopyingProgressBar.Value)}%");
+                SetCopyingStatusText(
+                    $"Copying file {_copyingFileOrFolderName}: {Math.Ceiling(CopyingProgressBar.Value)}%");
             }
             else
             {
@@ -267,7 +291,7 @@ namespace LanCopyFiles.Pages
         {
             _updateProgressBarTimer = new DispatcherTimer();
             _updateProgressBarTimer.Tick += UpdateProgressBarTimer_Tick;
-            _updateProgressBarTimer.Interval = new TimeSpan(0, 0, 0,1);
+            _updateProgressBarTimer.Interval = new TimeSpan(0, 0, 0, 1);
             // _updateProgressBarTimer.Start();
         }
 
@@ -276,6 +300,8 @@ namespace LanCopyFiles.Pages
             // code goes here
             SetCopyingProgress();
         }
+
+        #endregion
 
         #region Hien thi thong tin ve tac vu dang thuc hien
 
@@ -325,12 +351,78 @@ namespace LanCopyFiles.Pages
             {
                 serverPortTextBox.Text = ipCopyToPort.ToString();
             }
-            
         }
 
         private void SaveConfigs()
         {
             _config.SaveToFile("user_data.cfg");
+        }
+
+        #endregion
+
+        #region Chuyen toan bo cac duong dan da chon vao thu muc temp
+
+        private void CopySelectedPathsToTempFolder(string[] paths)
+        {
+            foreach (var path in paths)
+            {
+                // Kiem tra xem duong dan la file hay folder: https://stackoverflow.com/a/1395226/7182661
+                // get the file attributes for file or directory
+                FileAttributes attr = File.GetAttributes(path);
+
+                if (attr.HasFlag(FileAttributes.Directory))
+                {
+                    // Its a directory
+
+                    FilePacker.PackFolderReadyForCopying(path);
+                }
+                else
+                {
+                    // Its a file
+
+                    FilePacker.PackFileReadyForCopying(path);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Copy for all
+
+        public async Task StartCopyingProcess(string[] paths)
+        {
+            try
+            {
+                // Chuan bi cac file can copy vao thu muc temp
+                // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
+                CopyingProgressBar.IsIndeterminate = true;
+                CopyingStatusTextBox.Text = "Preparing file(s)/folder(s) for transferring";
+
+                await Task.Run(() =>
+                {
+                    CopySelectedPathsToTempFolder(paths);
+                    Trace.WriteLine("Da copy xong cac file vao thu muc temp");
+                });
+
+                CopyingProgressBar.IsIndeterminate = false;
+                CopyingStatusTextBox.Text = "File(s)/folder(s) is ready for transferring";
+
+                var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInTempFolder();
+
+                var copyResults = await SendFilesToServer(allFilesInTempFolder, this.serverIPTextBox.Text,
+                    int.Parse(serverPortTextBox.Text));
+                var successCopiedFilesCount = copyResults.Count(x => x);
+            
+                MessageBox.Show(
+                    $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
+            }
+            catch (Exception ex)
+            {
+                ResetCopyingStatusText();
+                MessageBox.Show("An error has happened: " + ex.Message);
+            
+                Trace.WriteLine(ex);
+            }
         }
 
         #endregion
