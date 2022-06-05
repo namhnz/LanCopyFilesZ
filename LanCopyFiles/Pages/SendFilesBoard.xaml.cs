@@ -393,6 +393,9 @@ namespace LanCopyFiles.Pages
         {
             try
             {
+                // Disable panel truyen file trong khi dang chuyen file sang may khac
+                FilesPickerCardAction.IsEnabled = false;
+
                 // Chuan bi cac file can copy vao thu muc temp
                 // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
                 CopyingProgressBar.IsIndeterminate = true;
@@ -415,6 +418,9 @@ namespace LanCopyFiles.Pages
             
                 MessageBox.Show(
                     $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
+
+                // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
+                FilesPickerCardAction.IsEnabled = true;
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace LanCopyFiles.Services.FilePrepare;
 
@@ -41,8 +42,10 @@ public class AppTempFolder
 
             DirectoryInfo di = new DirectoryInfo(copyTempFolderPath);
 
-            foreach (FileInfo file in di.GetFiles())
+            foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories)) //https://stackoverflow.com/a/14305610/7182661
             {
+                while (FileLockChecker.IsFileLocked(file))
+                    Thread.Sleep(1000);
                 file.Delete();
             }
             foreach (DirectoryInfo dir in di.GetDirectories())

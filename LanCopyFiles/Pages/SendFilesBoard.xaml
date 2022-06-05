@@ -55,7 +55,7 @@
             </StackPanel.Resources>
             <wpfui:CardAction
                 Icon="SquareHintArrowBack16"
-                Name="FilesPickerCardAction"
+                x:Name="FilesPickerCardAction"
                 Click="FilesPickerCardAction_OnClick"
                 MouseDoubleClick="FilesPickerCardAction_OnMouseDoubleClick"
                 ContextMenu="{StaticResource filesOrFoldersPickerContextMenu}">
