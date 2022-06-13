@@ -14,22 +14,45 @@
         IsVirtualizing="True"
         VirtualizationMode="Recycling">
 
-        <MediaElement Source="Images/data-transfering.gif"
-                      LoadedBehavior="Play" Visibility="Visible"
-                      Height="500"
-                      x:Name="dataTransferingGifMediaElement"
-                      MediaEnded="DataTransferingGifMediaElement_OnMediaEnded"
-                      UnloadedBehavior="Manual" 
-        />
-        <StackPanel HorizontalAlignment="Center">
-            <TextBlock
-                Margin="0,8,0,0"
-                FontSize="16"
-                Text="Data on the way to this computer..." 
-            />
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="All files and folders received will be saved on Desktop" 
-                       Margin="0 4 0 0"/>
-        </StackPanel>
+        <!-- <MediaElement Source="Images/data-transfering.gif" -->
+        <!--               LoadedBehavior="Play" Visibility="Visible" -->
+        <!--               Height="500" -->
+        <!--               x:Name="dataTransferingGifMediaElement" -->
+        <!--               MediaEnded="DataTransferingGifMediaElement_OnMediaEnded" -->
+        <!--               UnloadedBehavior="Manual"  -->
+        <!-- /> -->
+        <!-- <StackPanel HorizontalAlignment="Center"> -->
+        <!--     <TextBlock -->
+        <!--         Margin="0,8,0,0" -->
+        <!--         FontSize="16" -->
+        <!--         Text="Data on the way to this computer..."  -->
+        <!--     /> -->
+        <!--     <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="All files and folders received will be saved on Desktop"  -->
+        <!--                Margin="0 4 0 0"/> -->
+        <!-- </StackPanel> -->
+
+        <TextBlock
+            Margin="0,24,0,0"
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            Text="Ethernet IP Address" />
+        <wpfui:CardExpander
+            x:Name="currentConnectionIPAddressDisplayCardExpander"
+            Margin="0,8,0,0"
+            Header="Current connection ethernet IP Address"
+            Icon="Wifi120"
+            Subtitle="Use this IP Address to receive files/folders: 127.0.0.1:8085">
+            <wpfui:CardExpander.HeaderContent>
+                <wpfui:Button
+                    Margin="0,0,16,0"
+                    Padding="30,6"
+                    Appearance="Secondary"
+                    Content="Copy" 
+                    x:Name="copyIPAddressButton" Click="copyIPAddressButton_Click"
+                    />
+            </wpfui:CardExpander.HeaderContent>
+            <TextBlock Text="10.62.64.215:8085&#x0a;10.62.64.215:8085&#x0a;10.62.64.215:8085" 
+                       x:Name="allIPAddressOnAllAdaperDisplayTextBlock"/>
+        </wpfui:CardExpander>
 
     </VirtualizingStackPanel>
 </Page>

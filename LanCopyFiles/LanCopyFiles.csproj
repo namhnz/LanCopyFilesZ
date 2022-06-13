@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Services\FileSystemAnalyze\" />
+    <Folder Include="Services\GetIPAddress\" />
   </ItemGroup>
 
   <ItemGroup>
