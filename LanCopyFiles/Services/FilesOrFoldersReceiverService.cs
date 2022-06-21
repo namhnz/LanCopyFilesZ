@@ -1,21 +1,39 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using EasyFileTransfer;
+using EasyFileTransfer.Model;
+using LanCopyFiles.Services.FilePrepare;
+using log4net;
 
 namespace LanCopyFiles.Services;
 
 public class FilesOrFoldersReceiverService: IDisposable
 {
+    private static readonly ILog Log =
+        LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
     // private int OPEN_PORT = 8085;
 
     //Nguon: https://stackoverflow.com/a/71522082/7182661
     private bool _running = false;
-    private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
+    // private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
+    private EftServer _server =
+        new EftServer(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TempFolderNames.ReceiveTempFolder) + "\\",
+            8085);
     private readonly Thread _receiverThread;
 
-    public FilesOrFoldersReceiverService()
+    private static FilesOrFoldersReceiverService _instance;
+
+    public static FilesOrFoldersReceiverService Instance
+    {
+        get { return _instance ??= new FilesOrFoldersReceiverService(); }
+
+    }
+
+    private FilesOrFoldersReceiverService()
     {
         // Nguon: https://stackoverflow.com/a/634145/7182661
         
@@ -48,7 +66,8 @@ public class FilesOrFoldersReceiverService: IDisposable
         _running = false;
         _receiverThread.Join();
 
-        Trace.WriteLine("Stop thread");
+        // Trace.WriteLine("Stop thread");
+        Log.Info("Thread nhan file da tam dung");
     }
 
     public void Dispose()
@@ -57,9 +76,15 @@ public class FilesOrFoldersReceiverService: IDisposable
     }
 
 
-    public event EventHandler DataStartReceivingOnServer
+    public event EventHandler<DataReceivingArgs> DataStartReceivingOnServer
     {
         add { _server.DataStartReceiving += value; }
         remove { _server.DataStartReceiving -= value; }
+    }
+
+    public event EventHandler<DataReceivingArgs> DataFinishReceivingOnServer
+    {
+        add { _server.DataFinishReceiving += value; }
+        remove { _server.DataFinishReceiving -= value; }
     }
 }

@@ -15,6 +15,7 @@ using EasyFileTransfer;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
+using log4net;
 using Ookii.Dialogs.Wpf;
 using SharpConfig;
 
@@ -25,6 +26,9 @@ namespace LanCopyFiles.Pages
     /// </summary>
     public partial class SendFilesBoard : Page
     {
+        private static readonly ILog Log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public SendFilesBoard()
         {
             InitializeComponent();
@@ -309,13 +313,13 @@ namespace LanCopyFiles.Pages
 
         private void SetCopyingStatusText(string copyingStatusText)
         {
-            CopyingStatusTextBox.Text = copyingStatusText;
+            CopyingStatusTextBlock.Text = copyingStatusText;
         }
 
         private void ResetCopyingStatusText()
         {
             _copyingFileOrFolderName = "";
-            CopyingStatusTextBox.Text = "";
+            CopyingStatusTextBlock.Text = "";
         }
 
         #endregion
@@ -399,7 +403,7 @@ namespace LanCopyFiles.Pages
                 // Chuan bi cac file can copy vao thu muc temp
                 // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
                 CopyingProgressBar.IsIndeterminate = true;
-                CopyingStatusTextBox.Text = "Preparing file(s)/folder(s) for transferring";
+                CopyingStatusTextBlock.Text = "Preparing file(s)/folder(s) for transferring";
 
                 await Task.Run(() =>
                 {
@@ -408,26 +412,34 @@ namespace LanCopyFiles.Pages
                 });
 
                 CopyingProgressBar.IsIndeterminate = false;
-                CopyingStatusTextBox.Text = "File(s)/folder(s) is ready for transferring";
+                CopyingStatusTextBlock.Text = "File(s)/folder(s) is ready for transferring";
 
-                var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInTempFolder();
+                var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInSendTempFolder();
 
                 var copyResults = await SendFilesToServer(allFilesInTempFolder, this.serverIPTextBox.Text,
                     int.Parse(serverPortTextBox.Text));
                 var successCopiedFilesCount = copyResults.Count(x => x);
-            
+
                 MessageBox.Show(
                     $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
 
-                // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
-                FilesPickerCardAction.IsEnabled = true;
             }
             catch (Exception ex)
             {
                 ResetCopyingStatusText();
                 MessageBox.Show("An error has happened: " + ex.Message);
-            
-                Trace.WriteLine(ex);
+
+                // Trace.WriteLine(ex);
+                Log.Error(ex);
+            }
+            finally
+            {
+                // Xoa toan bo file trong cac thu muc send-temp, receive-temp
+                AppTempFolder.DeleteAllFilesInTempFolder();
+
+                // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
+                FilesPickerCardAction.IsEnabled = true;
+
             }
         }
 

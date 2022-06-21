@@ -6,6 +6,20 @@ namespace LanCopyFiles.Services.FilePrepare
 {
     internal class FilePacker
     {
+        public static void EnsureSendTempFolderExist()
+        {
+            // Lay thu muc dang chay app
+            var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+            var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
+
+            if (!Directory.Exists(copyTempFolderPath))
+            {
+                Directory.CreateDirectory(copyTempFolderPath);
+            }
+        }
+
         public static void PackFileReadyForCopying(string sourceFilePath)
         {
             if (!File.Exists(sourceFilePath))
@@ -17,7 +31,7 @@ namespace LanCopyFiles.Services.FilePrepare
             var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
             // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-            var copyTempFolderPath = Path.Combine(currentAppFolder, "temp");
+            var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
 
             if (!Directory.Exists(copyTempFolderPath))
             {
@@ -40,7 +54,7 @@ namespace LanCopyFiles.Services.FilePrepare
             var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
             // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-            var copyTempFolderPath = Path.Combine(currentAppFolder, "temp");
+            var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
 
             if (!Directory.Exists(copyTempFolderPath))
             {

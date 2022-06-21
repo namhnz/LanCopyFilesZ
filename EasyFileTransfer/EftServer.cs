@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using EasyFileTransfer.Model;
 
 namespace EasyFileTransfer
 {
@@ -15,13 +16,25 @@ namespace EasyFileTransfer
         public int Port;
         TcpListener obj_server;
 
+
+        #region Custom code
+
         // Nguon: https://stackoverflow.com/a/85188/7182661
-        public event EventHandler DataStartReceiving;
-        public void OnDataStartReceiving()
+        public event EventHandler<DataReceivingArgs> DataStartReceiving;
+        public void OnDataStartReceiving(string receivingFileName)
         {
-            EventHandler handler = DataStartReceiving;
-            if (null != handler) handler(this, EventArgs.Empty);
+            EventHandler<DataReceivingArgs> handler = DataStartReceiving;
+            if (null != handler) handler(this, new DataReceivingArgs() { ReceivingFileName = receivingFileName });
         }
+
+        public event EventHandler<DataReceivingArgs> DataFinishReceiving;
+        public void OnDataFinishReceiving(string receivingFileName)
+        {
+            EventHandler<DataReceivingArgs> handler = DataFinishReceiving;
+            if (null != handler) handler(this, new DataReceivingArgs() { ReceivingFileName = receivingFileName });
+        }
+
+        #endregion
 
         public EftServer(string SaveTo, int Port)
         {
@@ -40,8 +53,8 @@ namespace EasyFileTransfer
             {
                 TcpClient tc = obj_server.AcceptTcpClient();
                 SocketHandler obj_hadler = new SocketHandler(tc, SaveTo);
-                OnDataStartReceiving();
-                System.Threading.Thread obj_thread = new System.Threading.Thread(obj_hadler.ProcessSocketRequest);
+                System.Threading.Thread obj_thread = new System.Threading.Thread(() =>
+                    obj_hadler.ProcessSocketRequest(OnDataStartReceiving, OnDataFinishReceiving));
                 obj_thread.Start();
             }
         }
@@ -58,8 +71,10 @@ namespace EasyFileTransfer
             ns = tc.GetStream();
         }
 
-        public void ProcessSocketRequest()
+        public void ProcessSocketRequest(Action<string> onDataStartReceiving, Action<string> onDataFinishReceiving)
         {
+            string receivingFileName = "";
+
             FileStream fs = null;
             long current_file_pointer = 0;
             Boolean loop_break = false;
@@ -78,7 +93,11 @@ namespace EasyFileTransfer
                             break;
                         case 125:
                             {
-                                fs = new FileStream(@"" + SaveTo + Encoding.UTF8.GetString(recv_data), FileMode.CreateNew);
+                                // Custom code
+                                receivingFileName = Encoding.UTF8.GetString(recv_data);
+                                onDataStartReceiving(receivingFileName);
+                                
+                                fs = new FileStream(@"" + SaveTo + receivingFileName, FileMode.CreateNew);
                                 byte[] data_to_send = CreateDataPacket(Encoding.UTF8.GetBytes("126"), Encoding.UTF8.GetBytes(Convert.ToString(current_file_pointer)));
                                 ns.Write(data_to_send, 0, data_to_send.Length);
                                 ns.Flush();
@@ -110,6 +129,8 @@ namespace EasyFileTransfer
                     break;
                 }
             }
+
+            onDataFinishReceiving(receivingFileName);
         }
 
         public byte[] ReadStream()
@@ -152,10 +173,5 @@ namespace EasyFileTransfer
             return ms.ToArray();
         }
     }
-
-    #region Custom code
-
-
-
-    #endregion
+    
 }

@@ -6,13 +6,55 @@ namespace LanCopyFiles.Services.FilePrepare;
 
 public class FileExtractor
 {
+    public static void EnsureReceiveTempFolderExist()
+    {
+        // Lay thu muc dang chay app
+        var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
+
+        // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
+
+        if (!Directory.Exists(copyTempFolderPath))
+        {
+            Directory.CreateDirectory(copyTempFolderPath);
+        }
+    }
+
+    public static bool IsFolderAlreadyExistOnDesktop(string sourceZipFileName)
+    {
+        // Giai nen file zip trong thu muc temp vao thu muc dich
+
+        // Lay ten file zip nguon
+        // Kiem tra ten file zip da co duoi .zip chua
+        if (!sourceZipFileName.EndsWith(".zip"))
+        {
+            sourceZipFileName += ".zip";
+        }
+
+        var sourceZipFileNameWithoutExtension = sourceZipFileName[0..^4]; /* 4 la do dai cua ".zip", nguon: https://stackoverflow.com/a/9469003/7182661 */
+
+        // Thu muc dich giai nen full path nam o desktop
+
+        var destinationExtractFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            sourceZipFileNameWithoutExtension);
+
+        // Kiem tra xem file zip da ton tai hay chua, neu co thi tra ve true
+        if (Directory.Exists(destinationExtractFolderPath))
+        {
+            return true;
+        }
+
+        // Con lai tra ve false
+        return false;
+    }
+
     public static void ExtractFolderCopied(string sourceZipFileName)
     {
         // Lay thu muc dang chay app
         var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
         // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var copyTempFolderPath = Path.Combine(currentAppFolder, "temp");
+        var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
 
         if (!Directory.Exists(copyTempFolderPath))
         {

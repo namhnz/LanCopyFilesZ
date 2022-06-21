@@ -6,13 +6,13 @@ namespace LanCopyFiles.Services.FilePrepare;
 
 public class AppTempFolder
 {
-    public static string[] GetAllFilePathsInTempFolder()
+    public static string[] GetAllFilePathsInSendTempFolder()
     {
         // Lay thu muc dang chay app
         var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
         // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var copyTempFolderPath = Path.Combine(currentAppFolder, "temp");
+        var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
 
         if (!Directory.Exists(copyTempFolderPath))
         {
@@ -32,15 +32,38 @@ public class AppTempFolder
         var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
         // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var copyTempFolderPath = Path.Combine(currentAppFolder, "temp");
+        var sendTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
 
-        if (Directory.Exists(copyTempFolderPath))
+        if (Directory.Exists(sendTempFolderPath))
         {
             
             // Xoa toan bo moi thu ben trong temp folder
             // Nguon: https://stackoverflow.com/a/1288747/7182661
 
-            DirectoryInfo di = new DirectoryInfo(copyTempFolderPath);
+            DirectoryInfo di = new DirectoryInfo(sendTempFolderPath);
+
+            foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories)) //https://stackoverflow.com/a/14305610/7182661
+            {
+                while (FileLockChecker.IsFileLocked(file))
+                    Thread.Sleep(1000);
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
+
+        // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        var receiveTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
+
+        if (Directory.Exists(receiveTempFolderPath))
+        {
+
+            // Xoa toan bo moi thu ben trong temp folder
+            // Nguon: https://stackoverflow.com/a/1288747/7182661
+
+            DirectoryInfo di = new DirectoryInfo(receiveTempFolderPath);
 
             foreach (FileInfo file in di.GetFiles("*", SearchOption.AllDirectories)) //https://stackoverflow.com/a/14305610/7182661
             {

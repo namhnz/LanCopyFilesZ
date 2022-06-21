@@ -8,8 +8,9 @@
         Title="MainWindow" Height="700" Width="900"
         Style="{StaticResource UiWindow}"
         WindowStartupLocation="CenterScreen"
-        xmlns:wpfui="clr-namespace:WPFUI.Controls;assembly=WPFUI"
-        xmlns:pages="clr-namespace:LanCopyFiles.Pages" Closed="Window_Closed">
+        xmlns:pages="clr-namespace:LanCopyFiles.Pages"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Closed="Window_Closed">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="137*"/>
@@ -26,25 +27,27 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <wpfui:NavigationStore
+            <ui:NavigationStore
                 x:Name="RootNavigation"
                 Grid.Column="0"
                 Margin="6,0,6,0"
-                Frame="{Binding ElementName=RootFrame}">
-                <wpfui:NavigationStore.Items>
+                Frame="{Binding ElementName=RootFrame}"
+                SelectedPageIndex="0"
+                TransitionType="FadeIn">
+                <ui:NavigationStore.Items>
 
-                    <wpfui:NavigationItem
+                    <ui:NavigationItem
                         Content="Send"
                         Icon="DocumentArrowUp16"
                         PageTag="send-data-page"
-                        Page="{x:Type pages:SendFilesBoard}" />
-                    <wpfui:NavigationItem
+                        PageType="{x:Type pages:SendFilesBoard}" />
+                    <ui:NavigationItem
                         Content="Receive"
                         Icon="DocumentArrowDown16"
                         PageTag="receive-data-page"
-                        Page="{x:Type pages:ReceiveFilesBoard}" />
-                </wpfui:NavigationStore.Items>
-            </wpfui:NavigationStore>
+                        PageType="{x:Type pages:ReceiveFilesBoard}" />
+                </ui:NavigationStore.Items>
+            </ui:NavigationStore>
 
             <Border
                 Grid.Column="1"
@@ -56,7 +59,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Frame x:Name="RootFrame" Grid.Row="1" />
-                    <wpfui:Breadcrumb
+                    <ui:Breadcrumb
                         Margin="18,18,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
@@ -67,7 +70,7 @@
             </Border>
         </Grid>
 
-        <wpfui:TitleBar
+        <ui:TitleBar
             Title="LAN Files Copy" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
     </Grid>
 </Window>

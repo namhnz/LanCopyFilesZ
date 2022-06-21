@@ -22,7 +22,10 @@ namespace LanCopyFiles
         {
             InitializeComponent();
 
-            _receiverService = new FilesOrFoldersReceiverService();
+            FilePacker.EnsureSendTempFolderExist();
+            FileExtractor.EnsureReceiveTempFolderExist();
+
+            _receiverService = FilesOrFoldersReceiverService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
             {
                 // Nguon: https://stackoverflow.com/a/21306951/7182661
@@ -33,7 +36,7 @@ namespace LanCopyFiles
 
                 );
             };
-            
+
             _receiverService.StartService();
 
             // var desktopFileSystemNode = FileSystemStructureBuilder.GetStructure(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));

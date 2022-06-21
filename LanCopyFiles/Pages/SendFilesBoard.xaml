@@ -27,7 +27,7 @@
                 Grid.Column="0"
                 Margin="0,0,4,0">
                 <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Destination IP Address" />
-                <wpfui:TextBox Margin="0,8,0,0" Placeholder="192.168.1.2" 
+                <wpfui:TextBox Margin="0,8,0,0" PlaceholderText="192.168.1.2" 
                                x:Name="serverIPTextBox"/>
             </StackPanel>
             <StackPanel
@@ -35,7 +35,7 @@
                 Grid.Column="1"
                 Margin="0,0,4,0">
                 <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Port" />
-                <wpfui:TextBox Margin="0,8,0,0" Placeholder="8085" 
+                <wpfui:TextBox Margin="0,8,0,0" PlaceholderText="8085" 
                                x:Name="serverPortTextBox"/>
             </StackPanel>
         </Grid>
@@ -90,11 +90,14 @@
                          x:Name="CopyingProgressBar"
                          IsIndeterminate="False"/>
 
-            <wpfui:TextBox Margin="0,8,0,0"
-                           IsReadOnly="True"
-                           x:Name="CopyingStatusTextBox">
-            </wpfui:TextBox>
+            <!-- <wpfui:TextBox Margin="0,8,0,0" -->
+            <!--                IsReadOnly="True" -->
+            <!--                x:Name="CopyingStatusTextBlock"> -->
+            <!-- </wpfui:TextBox > -->
+            <TextBlock Margin="0,8,0,0"
+                       x:Name="CopyingStatusTextBlock">
             
+            </TextBlock>
         </StackPanel>
 
         
