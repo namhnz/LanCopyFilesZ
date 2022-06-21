@@ -12,6 +12,7 @@ using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Threading;
 using EasyFileTransfer;
+using LanCopyFiles.Configs;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
@@ -179,53 +180,54 @@ namespace LanCopyFiles.Pages
 
         #region Gui cac file den server
 
-        private async Task<List<bool>> SendFilesToServer(string[] filePaths, string serverIP, int serverPort)
+        private async Task<List<bool>> SendFilesToServer(string[] thingPaths, string destinationPCIPAddress)
         {
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
-            SetCopyingStatusText($"Connecting to remote IP address: {serverIP}:{serverPort}");
-
-            if (!IPAddressValidator.ValidateIPv4(serverIP) || serverPort <= 0)
-            {
-                throw new ArgumentException("Invalid destination IP address or port");
-            }
+            SetCopyingStatusText($"Connecting to remote IP address: {destinationPCIPAddress}");
+            
+            // if (!IPAddressValidator.ValidateIPv4(destinationPCIPAddress) || serverPort <= 0)
+            // {
+            //     throw new ArgumentException("Invalid destination IP address or port");
+            // }
 
             // Kiem tra xem co ket noi duoc den server khong
             await Task.Run(() =>
             {
-                if (!LanConnection.PingHost(serverIP, serverPort))
+                if (!IPAddressValidator.TestConnectionUsingPingHost(destinationPCIPAddress))
                 {
-                    throw new WebException($"Can't connect to {serverIP}:{serverPort}");
+                    throw new WebException($"Can't connect to {destinationPCIPAddress}");
                 }
             });
 
             // Hien thi thong bao trang thai ket noi thanh cong
-            SetCopyingStatusText($"Connect to remote IP address: {serverIP}:{serverPort} successfully");
+            SetCopyingStatusText($"Connected to destination PC: {destinationPCIPAddress}");
 
             // Luu lai dia chi IP trong truong hop kiem tra ket noi thanh cong
-            _ipCopyToSectionConfig["IPAddress"].StringValue = serverIP;
-            _ipCopyToSectionConfig["Port"].IntValue = serverPort;
-            SaveConfigs();
+            // _ipCopyToSectionConfig["IPAddress"].StringValue = destinationPCIPAddress;
+            GlobalAppConfigs.Instance.SendFilesConfigs.SetSavedDestinationPCIPAddressConfigValue(destinationPCIPAddress);
+            // _ipCopyToSectionConfig["Port"].IntValue = serverPort;
+            // SaveConfigs();
 
             // Hien thi so luong file va folder se copy
-            SetCopyingStatusText($"{filePaths.Length} file(s) and folder(s) will be copied");
+            SetCopyingStatusText($"{thingPaths.Length} file(s) and folder(s) will be copied");
 
             _updateProgressBarTimer.Start();
-            _countTotalFilesAndFoldersCopying = filePaths.Length;
+            _countTotalFilesAndFoldersCopying = thingPaths.Length;
 
             var copyResultTask = await Task.Run(() =>
             {
                 var sendFileResults = new List<bool>();
 
-                for (int i = 0; i < filePaths.Length; i++)
+                for (int i = 0; i < thingPaths.Length; i++)
                 {
                     _fileOrFolderCopyingIndex = i;
 
-                    if (File.Exists(filePaths[i]))
+                    if (File.Exists(thingPaths[i]))
                     {
                         // Dung de hien thi len thong bao trang thai
-                        _copyingFileOrFolderName = Path.GetFileName(filePaths[i]);
+                        _copyingFileOrFolderName = Path.GetFileName(thingPaths[i]);
 
-                        var response = EftClient.Send(filePaths[i], serverIP, serverPort);
+                        var response = EftClient.Send(thingPaths[i], destinationPCIPAddress, serverPort);
                         if (response != null && response.status == 1)
                         {
                             sendFileResults.Add(true);
@@ -237,7 +239,7 @@ namespace LanCopyFiles.Pages
                     }
                     else
                     {
-                        throw new FileNotFoundException($"File {filePaths[i]} doesn't exist");
+                        throw new FileNotFoundException($"File {thingPaths[i]} doesn't exist");
                     }
                 }
 
@@ -332,35 +334,39 @@ namespace LanCopyFiles.Pages
 
         private void LoadConfigs()
         {
-            if (File.Exists("user_data.cfg"))
+            // if (File.Exists("user_data.cfg"))
+            // {
+            //     _config = Configuration.LoadFromFile("user_data.cfg");
+            // }
+            // else
+            // {
+            //     _config = new Configuration();
+            // }
+            //
+            // _ipCopyToSectionConfig = _config["IPCopyTo"];
+            //
+            // // Lay cac gia tri cac duong dan da luu
+            // var ipCopyToAddress = _ipCopyToSectionConfig["IPAddress"].StringValue;
+
+            var destinationPCIPAddress =
+                GlobalAppConfigs.Instance.SendFilesConfigs.GetSavedDestinationPCIPAddressConfigValue();
+
+            if (!string.IsNullOrEmpty(destinationPCIPAddress))
             {
-                _config = Configuration.LoadFromFile("user_data.cfg");
-            }
-            else
-            {
-                _config = new Configuration();
+                destinationPCIPAddressTextBox.Text = destinationPCIPAddress;
             }
 
-            _ipCopyToSectionConfig = _config["IPCopyTo"];
-
-            // Lay cac gia tri cac duong dan da luu
-            var ipCopyToAddress = _ipCopyToSectionConfig["IPAddress"].StringValue;
-            if (!string.IsNullOrEmpty(ipCopyToAddress))
-            {
-                serverIPTextBox.Text = ipCopyToAddress;
-            }
-
-            var ipCopyToPort = _ipCopyToSectionConfig["Port"].IntValue;
-            if (ipCopyToPort > 0 && ipCopyToPort <= 65535)
-            {
-                serverPortTextBox.Text = ipCopyToPort.ToString();
-            }
+            // var ipCopyToPort = _ipCopyToSectionConfig["Port"].IntValue;
+            // if (ipCopyToPort > 0 && ipCopyToPort <= 65535)
+            // {
+            //     serverPortTextBox.Text = ipCopyToPort.ToString();
+            // }
         }
 
-        private void SaveConfigs()
-        {
-            _config.SaveToFile("user_data.cfg");
-        }
+        // private void SaveConfigs()
+        // {
+        //     _config.SaveToFile("user_data.cfg");
+        // }
 
         #endregion
 
@@ -398,7 +404,7 @@ namespace LanCopyFiles.Pages
             try
             {
                 // Kiem tra xem thu dia chi IP may dich da day du hay chua
-                var destinationPCIPAddress = serverIPTextBox.Text;
+                var destinationPCIPAddress = destinationPCIPAddressTextBox.Text;
                 if (!IPAddressValidator.CheckIfValidFormatIPv4Only(destinationPCIPAddress))
                 {
                     OpenMessageBox("Invalid IP address", "The destination PC's IP address is invalid");

@@ -21,7 +21,7 @@ namespace LanCopyFiles.Pages
         private static readonly ILog Log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly FilesOrFoldersReceiverService _receiverService;
+        private readonly ThingReceiverService _receiverService;
 
         public ReceiveFilesBoard()
         {
@@ -32,7 +32,7 @@ namespace LanCopyFiles.Pages
 
             InitIPAddressValues();
 
-            _receiverService = FilesOrFoldersReceiverService.Instance;
+            _receiverService = ThingReceiverService.Instance;
 
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
             {

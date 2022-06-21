@@ -22,8 +22,7 @@
                        Text="Destination PC IP Address" 
                        Margin="0,0,4,0"/>
             <ui:TextBox  PlaceholderText="Enter IP address of which PC you want to send files/folder, example: 192.168.1.2" 
-                         x:Name="serverIPTextBox"
-                         MinWidth="600"
+                         x:Name="destinationPCIPAddressTextBox"
                          Margin="0,8,0,0"/>
         </StackPanel>
 

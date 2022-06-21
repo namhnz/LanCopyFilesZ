@@ -10,7 +10,7 @@ using log4net;
 
 namespace LanCopyFiles.Services;
 
-public class FilesOrFoldersReceiverService: IDisposable
+public class ThingReceiverService: IDisposable
 {
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,15 +25,15 @@ public class FilesOrFoldersReceiverService: IDisposable
             8085);
     private readonly Thread _receiverThread;
 
-    private static FilesOrFoldersReceiverService _instance;
+    private static ThingReceiverService _instance;
 
-    public static FilesOrFoldersReceiverService Instance
+    public static ThingReceiverService Instance
     {
-        get { return _instance ??= new FilesOrFoldersReceiverService(); }
+        get { return _instance ??= new ThingReceiverService(); }
 
     }
 
-    private FilesOrFoldersReceiverService()
+    private ThingReceiverService()
     {
         // Nguon: https://stackoverflow.com/a/634145/7182661
         

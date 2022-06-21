@@ -16,7 +16,7 @@ namespace LanCopyFiles
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly FilesOrFoldersReceiverService _receiverService;
+        private readonly ThingReceiverService _receiverService;
 
         public MainWindow()
         {
@@ -25,7 +25,7 @@ namespace LanCopyFiles
             FilePacker.EnsureSendTempFolderExist();
             FileExtractor.EnsureReceiveTempFolderExist();
 
-            _receiverService = FilesOrFoldersReceiverService.Instance;
+            _receiverService = ThingReceiverService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
             {
                 // Nguon: https://stackoverflow.com/a/21306951/7182661
