@@ -167,7 +167,8 @@ namespace LanCopyFiles.Pages
                         Log.Info("Da di chuyen file ra desktop");
                     }
 
-                    MessageBox.Show($"Received file/folder {receivedFileName} successfully");
+                    // Received file/folder successfully
+                    ShowReceivedThingSnackbar(receivedFileName);
                 });
             }
             catch (Exception ex)
@@ -177,5 +178,17 @@ namespace LanCopyFiles.Pages
                 MessageBox.Show("An error has happened: " + ex.Message);
             }
         }
+
+        #region Hien thi thong bao
+
+        private void ShowReceivedThingSnackbar(string receivedThingName)
+        {
+            (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(
+                "Just receive a file/folder from another PC!",
+                $"The file/folder named {receivedThingName} was arrived, you can check it on Desktop");
+        }
+
+
+        #endregion
     }
 }

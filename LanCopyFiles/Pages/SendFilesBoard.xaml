@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:LanCopyFiles.Pages"
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
-      xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       Title="SendFilesBoard">
     <VirtualizingStackPanel
         Margin="18,0,18,18"
@@ -17,28 +17,15 @@
             Margin="0,24,0,0"
             FontSize="16"
             Text="Where to send files" />
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <StackPanel
-                Grid.Row="0"
-                Grid.Column="0"
-                Margin="0,0,4,0">
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Destination IP Address" />
-                <wpfui:TextBox Margin="0,8,0,0" PlaceholderText="192.168.1.2" 
-                               x:Name="serverIPTextBox"/>
-            </StackPanel>
-            <StackPanel
-                Grid.Row="0"
-                Grid.Column="1"
-                Margin="0,0,4,0">
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Port" />
-                <wpfui:TextBox Margin="0,8,0,0" PlaceholderText="8085" 
-                               x:Name="serverPortTextBox"/>
-            </StackPanel>
-        </Grid>
+        <StackPanel>
+            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                       Text="Destination PC IP Address" 
+                       Margin="0,0,4,0"/>
+            <ui:TextBox  PlaceholderText="Enter IP address of which PC you want to send files/folder, example: 192.168.1.2" 
+                         x:Name="serverIPTextBox"
+                         MinWidth="600"
+                         Margin="0,8,0,0"/>
+        </StackPanel>
 
         <TextBlock
             Margin="0,24,0,0"
@@ -53,7 +40,7 @@
                     <MenuItem Header="Paste" Click="FilesOrFoldersPickerContextMenuPasteItem_OnClick" />
                 </ContextMenu>
             </StackPanel.Resources>
-            <wpfui:CardAction
+            <ui:CardAction
                 Icon="SquareHintArrowBack16"
                 x:Name="FilesPickerCardAction"
                 Click="FilesPickerCardAction_OnClick"
@@ -78,7 +65,7 @@
                                FontSize="11"
                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"></TextBlock>
                 </StackPanel>
-            </wpfui:CardAction>
+            </ui:CardAction>
         </StackPanel>
 
         <TextBlock

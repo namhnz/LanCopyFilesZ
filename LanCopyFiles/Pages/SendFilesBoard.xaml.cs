@@ -184,7 +184,7 @@ namespace LanCopyFiles.Pages
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
             SetCopyingStatusText($"Connecting to remote IP address: {serverIP}:{serverPort}");
 
-            if (!IPAddressValidation.ValidateIPv4(serverIP) || serverPort <= 0)
+            if (!IPAddressValidator.ValidateIPv4(serverIP) || serverPort <= 0)
             {
                 throw new ArgumentException("Invalid destination IP address or port");
             }
@@ -397,6 +397,14 @@ namespace LanCopyFiles.Pages
         {
             try
             {
+                // Kiem tra xem thu dia chi IP may dich da day du hay chua
+                var destinationPCIPAddress = serverIPTextBox.Text;
+                if (!IPAddressValidator.CheckIfValidFormatIPv4Only(destinationPCIPAddress))
+                {
+                    OpenMessageBox("Invalid IP address", "The destination PC's IP address is invalid");
+                    return;
+                }
+
                 // Disable panel truyen file trong khi dang chuyen file sang may khac
                 FilesPickerCardAction.IsEnabled = false;
 
@@ -416,8 +424,8 @@ namespace LanCopyFiles.Pages
 
                 var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInSendTempFolder();
 
-                var copyResults = await SendFilesToServer(allFilesInTempFolder, this.serverIPTextBox.Text,
-                    int.Parse(serverPortTextBox.Text));
+                var copyResults = await SendFilesToServer(allFilesInTempFolder, destinationPCIPAddress,
+                    IPAddressValidator.APP_DEFAULT_PORT);
                 var successCopiedFilesCount = copyResults.Count(x => x);
 
                 MessageBox.Show(
@@ -443,6 +451,27 @@ namespace LanCopyFiles.Pages
             }
         }
 
+        #endregion
+
+        #region Hien thi MessageBox
+
+        private void OpenMessageBox(string title, string message)
+        {
+            var messageBox = new Wpf.Ui.Controls.MessageBox();
+
+            // messageBox.ButtonLeftName = "Hello World";
+            messageBox.ButtonRightName = "Close";
+
+            // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
+            messageBox.ButtonRightClick += MessageBox_RightButtonClick;
+
+            messageBox.Show("Something weird", "May happen");
+        }
+
+        private void MessageBox_RightButtonClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            (sender as Wpf.Ui.Controls.MessageBox)?.Close();
+        }
         #endregion
     }
 }

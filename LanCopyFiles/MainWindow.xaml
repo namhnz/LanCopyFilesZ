@@ -66,8 +66,22 @@
                         FontSize="24"
                         Navigation="{Binding ElementName=RootNavigation}" 
                         Grid.Row="0"/>
+
+                    <ui:Snackbar
+                        x:Name="RootSnackbar"
+                        Title="Receive file/folder result"
+                        Grid.Row="1"
+                        MaxWidth="600"
+                        Appearance="Secondary"
+                        Icon="DocumentCopy24"
+                        IsShown="False"
+                        Message="Just received a file/folder!"
+                        ShowCloseButton="True"
+                        Timeout="5000" />
                 </Grid>
             </Border>
+
+            
         </Grid>
 
         <ui:TitleBar
