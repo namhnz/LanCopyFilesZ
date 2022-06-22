@@ -8,6 +8,7 @@ using EasyFileTransfer;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.FileSystemAnalyze;
+using LanCopyFiles.Services.SendReceiveServices;
 
 namespace LanCopyFiles
 {
@@ -16,7 +17,7 @@ namespace LanCopyFiles
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ThingReceiverService _receiverService;
+        private readonly FileReceivingService _receiverService;
 
         public MainWindow()
         {
@@ -25,7 +26,7 @@ namespace LanCopyFiles
             FilePacker.EnsureSendTempFolderExist();
             FileExtractor.EnsureReceiveTempFolderExist();
 
-            _receiverService = ThingReceiverService.Instance;
+            _receiverService = FileReceivingService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
             {
                 // Nguon: https://stackoverflow.com/a/21306951/7182661

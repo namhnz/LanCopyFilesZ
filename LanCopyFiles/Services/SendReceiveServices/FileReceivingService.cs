@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -8,9 +7,9 @@ using EasyFileTransfer.Model;
 using LanCopyFiles.Services.FilePrepare;
 using log4net;
 
-namespace LanCopyFiles.Services;
+namespace LanCopyFiles.Services.SendReceiveServices;
 
-public class ThingReceiverService: IDisposable
+public class FileReceivingService: IDisposable
 {
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,15 +24,15 @@ public class ThingReceiverService: IDisposable
             8085);
     private readonly Thread _receiverThread;
 
-    private static ThingReceiverService _instance;
+    private static FileReceivingService _instance;
 
-    public static ThingReceiverService Instance
+    public static FileReceivingService Instance
     {
-        get { return _instance ??= new ThingReceiverService(); }
+        get { return _instance ??= new FileReceivingService(); }
 
     }
 
-    private ThingReceiverService()
+    private FileReceivingService()
     {
         // Nguon: https://stackoverflow.com/a/634145/7182661
         

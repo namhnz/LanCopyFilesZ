@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.GetIPAddress;
+using LanCopyFiles.Services.SendReceiveServices;
 using log4net;
 
 namespace LanCopyFiles.Pages
@@ -21,7 +22,7 @@ namespace LanCopyFiles.Pages
         private static readonly ILog Log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly ThingReceiverService _receiverService;
+        private readonly FileReceivingService _receiverService;
 
         public ReceiveFilesBoard()
         {
@@ -32,7 +33,7 @@ namespace LanCopyFiles.Pages
 
             InitIPAddressValues();
 
-            _receiverService = ThingReceiverService.Instance;
+            _receiverService = FileReceivingService.Instance;
 
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
             {
