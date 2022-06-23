@@ -57,7 +57,7 @@
                                     x:Name="preferredIPAddressTextBlock"
                                     FontSize="12"
                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="Use this IP Address to receive files/folders: 127.0.0.1:8085" />
+                                    Text="Use this IP Address to receive files/folders: 127.0.0.1" />
                         </StackPanel>
                         <wpfui:Button
                                 Grid.Column="1"
@@ -71,7 +71,7 @@
                         </Grid>
                     </wpfui:CardExpander.Header>
                 
-                <TextBlock Text="10.62.64.215:8085&#x0a;10.62.64.215:8085&#x0a;10.62.64.215:8085" 
+                <TextBlock Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215" 
                            x:Name="allIPAddressOnAllAdaperDisplayTextBlock"/>
             </wpfui:CardExpander>
         </StackPanel>

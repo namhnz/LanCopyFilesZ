@@ -64,13 +64,12 @@ namespace LanCopyFiles.Pages
             // Dia chi IP uu tien nhat
             var currentConnectionIPAddress = GetCurrentConnectionIPAddress.GetIPv4();
             preferredIPAddressTextBlock.Text =
-                $"Use this IP Address to receive files/folders: {currentConnectionIPAddress}:8085";
+                $"To receive files and folders, use this IP address: {currentConnectionIPAddress}";
 
             // Toan bo dia chi IP khac
-            var allIOnAllAdapters = GetIPAddressOnAllAdapters.GetAllIPv4().Except(new[] { currentConnectionIPAddress })
-                .Select(x => $"{x}:8085");
+            var allIOnAllAdapters = GetIPAddressOnAllAdapters.GetAllIPv4().Except(new[] { currentConnectionIPAddress });
             allIPAddressOnAllAdaperDisplayTextBlock.Text =
-                "Other IP Addresses on this PC:\n" + string.Join("\n", allIOnAllAdapters.ToArray());
+                "Other IP addresses on this PC:\n" + string.Join("\n", allIOnAllAdapters.ToArray());
         }
 
         private void copyIPAddressButton_Click(object sender, RoutedEventArgs e)

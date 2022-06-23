@@ -14,8 +14,10 @@ using System.Windows.Threading;
 using EasyFileTransfer;
 using LanCopyFiles.Configs;
 using LanCopyFiles.Extensions;
+using LanCopyFiles.Models;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
+using LanCopyFiles.Services.SendReceiveServices;
 using log4net;
 using Ookii.Dialogs.Wpf;
 using SharpConfig;
@@ -43,7 +45,7 @@ namespace LanCopyFiles.Pages
                     MouseWaitTimer_Tick,
                     Dispatcher.CurrentDispatcher);
 
-            InitUpdateProgressBarTimer();
+            // InitUpdateProgressBarTimer();
         }
 
         #region Phan thuc thi khi drag/drop cac file hoac folder vao panel
@@ -183,7 +185,7 @@ namespace LanCopyFiles.Pages
         private async Task<List<bool>> SendFilesToServer(string[] thingPaths, string destinationPCIPAddress)
         {
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
-            SetCopyingStatusText($"Connecting to remote IP address: {destinationPCIPAddress}");
+            SendingStatusTextBlock.Text = $"Connecting to remote IP address: {destinationPCIPAddress}";
             
             // if (!IPAddressValidator.ValidateIPv4(destinationPCIPAddress) || serverPort <= 0)
             // {
@@ -200,7 +202,7 @@ namespace LanCopyFiles.Pages
             });
 
             // Hien thi thong bao trang thai ket noi thanh cong
-            SetCopyingStatusText($"Connected to destination PC: {destinationPCIPAddress}");
+            SendingStatusTextBlock.Text = $"Connected to destination PC: {destinationPCIPAddress}";
 
             // Luu lai dia chi IP trong truong hop kiem tra ket noi thanh cong
             // _ipCopyToSectionConfig["IPAddress"].StringValue = destinationPCIPAddress;
@@ -209,120 +211,131 @@ namespace LanCopyFiles.Pages
             // SaveConfigs();
 
             // Hien thi so luong file va folder se copy
-            SetCopyingStatusText($"{thingPaths.Length} file(s) and folder(s) will be copied");
+            SendingStatusTextBlock.Text = $"{thingPaths.Length} file(s) and folder(s) will be copied";
 
-            _updateProgressBarTimer.Start();
-            _countTotalFilesAndFoldersCopying = thingPaths.Length;
+            // _updateProgressBarTimer.Start();
+            // _countTotalFilesAndFoldersCopying = thingPaths.Length;
 
-            var copyResultTask = await Task.Run(() =>
+            var sendResultTask = await Task.Run(() =>
             {
-                var sendFileResults = new List<bool>();
+                // var sendFileResults = new List<bool>();
 
-                for (int i = 0; i < thingPaths.Length; i++)
-                {
-                    _fileOrFolderCopyingIndex = i;
-
-                    if (File.Exists(thingPaths[i]))
-                    {
-                        // Dung de hien thi len thong bao trang thai
-                        _copyingFileOrFolderName = Path.GetFileName(thingPaths[i]);
-
-                        var response = EftClient.Send(thingPaths[i], destinationPCIPAddress, serverPort);
-                        if (response != null && response.status == 1)
-                        {
-                            sendFileResults.Add(true);
-                        }
-                        else
-                        {
-                            sendFileResults.Add(false);
-                        }
-                    }
-                    else
-                    {
-                        throw new FileNotFoundException($"File {thingPaths[i]} doesn't exist");
-                    }
-                }
+                // for (int i = 0; i < thingPaths.Length; i++)
+                // {
+                //     _fileOrFolderCopyingIndex = i;
+                //
+                //     if (File.Exists(thingPaths[i]))
+                //     {
+                //         // Dung de hien thi len thong bao trang thai
+                //         _copyingFileOrFolderName = Path.GetFileName(thingPaths[i]);
+                //
+                //         var response = EftClient.Send(thingPaths[i], destinationPCIPAddress, serverPort);
+                //         if (response != null && response.status == 1)
+                //         {
+                //             sendFileResults.Add(true);
+                //         }
+                //         else
+                //         {
+                //             sendFileResults.Add(false);
+                //         }
+                //     }
+                //     else
+                //     {
+                //         throw new FileNotFoundException($"File {thingPaths[i]} doesn't exist");
+                //     }
+                // }
 
                 // _updateProgressBarTimer.Stop();
+
+                var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
+                var sendFileResults = fileSendingService.SendFilesToDestinationPC();
 
                 return sendFileResults;
             });
 
-            ResetCopyingProgress();
-            ResetCopyingStatusText();
+            ClearSendingProgressStatus();
+            // ResetCopyingStatusText();
 
-            return copyResultTask;
+            return sendResultTask;
         }
 
-        private void ResetCopyingProgress()
+        private void ClearSendingProgressStatus()
         {
-            _fileOrFolderCopyingIndex = 0;
-            _countTotalFilesAndFoldersCopying = 0;
-
-            SetCopyingProgress();
-            _updateProgressBarTimer.Stop();
+            // _fileOrFolderCopyingIndex = 0;
+            // _countTotalFilesAndFoldersCopying = 0;
+            //
+            // OnSendingProgressChanged();
+            // _updateProgressBarTimer.Stop();
+            SendingProgressBar.SetPercent(0);
+            SendingStatusTextBlock.Text = string.Empty;
         }
 
-        private void SetCopyingProgress()
+        private void OnSendingProgressChanged(object sender, FilesSendingProgressInfoArgs args)
         {
-            if (_countTotalFilesAndFoldersCopying > 0)
-            {
-                // CopyingProgressBar.Value = EftClient.ProgressValue * (_fileOrFolderCopyingIndex + 1) /
-                //                           (double)_countTotalFilesAndFoldersCopying;
+            // if (_countTotalFilesAndFoldersCopying > 0)
+            // {
+            //     // SendingProgressBar.Value = EftClient.ProgressValue * (_fileOrFolderCopyingIndex + 1) /
+            //     //                           (double)_countTotalFilesAndFoldersCopying;
+            //
+            //     SendingProgressBar.SetPercent(EftClient.ProgressValue * 1 /
+            //                                   (double)_countTotalFilesAndFoldersCopying +
+            //                                   100 * _fileOrFolderCopyingIndex /
+            //                                   (double)_countTotalFilesAndFoldersCopying);
+            //
+            //     Trace.WriteLine($"Dang copy: {SendingProgressBar.Value}%");
+            //
+            //     // Hien thi len thong bao trang thai
+            //     SetCopyingStatusText(
+            //         $"Copying file {_copyingFileOrFolderName}: {Math.Ceiling(SendingProgressBar.Value)}%");
+            // }
+            // else
+            // {
+            //     SendingProgressBar.SetPercent(0);
+            // }
 
-                CopyingProgressBar.SetPercent(EftClient.ProgressValue * 1 /
-                                              (double)_countTotalFilesAndFoldersCopying +
-                                              100 * _fileOrFolderCopyingIndex /
-                                              (double)_countTotalFilesAndFoldersCopying);
+            SendingProgressBar.SetPercent(args.TotalSendingPercentage);
+            SendingStatusTextBlock.Text =
+                $"Transferring file {args.SendingFileName}: {Math.Ceiling(SendingProgressBar.Value)}%";
 
-                Trace.WriteLine($"Dang copy: {CopyingProgressBar.Value}%");
-
-                // Hien thi len thong bao trang thai
-                SetCopyingStatusText(
-                    $"Copying file {_copyingFileOrFolderName}: {Math.Ceiling(CopyingProgressBar.Value)}%");
-            }
-            else
-            {
-                CopyingProgressBar.SetPercent(0);
-            }
+            Trace.WriteLine($"Dang gui file :{SendingProgressBar.Value}%");
         }
 
-        private int _fileOrFolderCopyingIndex;
-        private int _countTotalFilesAndFoldersCopying;
+        // private int _fileOrFolderCopyingIndex;
+        // private int _countTotalFilesAndFoldersCopying;
 
         // Nguon: https://stackoverflow.com/a/11560151/7182661
-        private DispatcherTimer _updateProgressBarTimer;
+        // private DispatcherTimer _updateProgressBarTimer;
 
-        private void InitUpdateProgressBarTimer()
-        {
-            _updateProgressBarTimer = new DispatcherTimer();
-            _updateProgressBarTimer.Tick += UpdateProgressBarTimer_Tick;
-            _updateProgressBarTimer.Interval = new TimeSpan(0, 0, 0, 1);
-            // _updateProgressBarTimer.Start();
-        }
+        // private void InitUpdateProgressBarTimer()
+        // {
+        //     _updateProgressBarTimer = new DispatcherTimer();
+        //     _updateProgressBarTimer.Tick += UpdateProgressBarTimer_Tick;
+        //     _updateProgressBarTimer.Interval = new TimeSpan(0, 0, 0, 1);
+        //     // _updateProgressBarTimer.Start();
+        // }
 
-        private void UpdateProgressBarTimer_Tick(object sender, EventArgs e)
-        {
-            // code goes here
-            SetCopyingProgress();
-        }
+        // private void UpdateProgressBarTimer_Tick(object sender, EventArgs e)
+        // {
+        //     // code goes here
+        //     OnSendingProgressChanged();
+        // }
 
         #endregion
 
         #region Hien thi thong tin ve tac vu dang thuc hien
 
-        private string _copyingFileOrFolderName;
+        // private string _copyingFileOrFolderName;
 
-        private void SetCopyingStatusText(string copyingStatusText)
-        {
-            CopyingStatusTextBlock.Text = copyingStatusText;
-        }
+        // private void SetCopyingStatusText(string copyingStatusText)
+        // {
+        //     SendingStatusTextBlock.Text = copyingStatusText;
+        // }
 
-        private void ResetCopyingStatusText()
-        {
-            _copyingFileOrFolderName = "";
-            CopyingStatusTextBlock.Text = "";
-        }
+        // private void ResetCopyingStatusText()
+        // {
+        //     _copyingFileOrFolderName = "";
+        //     SendingStatusTextBlock.Text = "";
+        // }
 
         #endregion
 
@@ -399,7 +412,7 @@ namespace LanCopyFiles.Pages
 
         #region Copy for all
 
-        public async Task StartCopyingProcess(string[] paths)
+        public async Task StartCopyingProcess(string[] thingPaths)
         {
             try
             {
@@ -416,32 +429,35 @@ namespace LanCopyFiles.Pages
 
                 // Chuan bi cac file can copy vao thu muc temp
                 // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
-                CopyingProgressBar.IsIndeterminate = true;
-                CopyingStatusTextBlock.Text = "Preparing file(s)/folder(s) for transferring";
+                SendingProgressBar.IsIndeterminate = true;
+                SendingStatusTextBlock.Text = "Preparing file(s)/folder(s) for transferring";
 
                 await Task.Run(() =>
                 {
-                    CopySelectedPathsToTempFolder(paths);
+                    CopySelectedPathsToTempFolder(thingPaths);
                     Trace.WriteLine("Da copy xong cac file vao thu muc temp");
                 });
 
-                CopyingProgressBar.IsIndeterminate = false;
-                CopyingStatusTextBlock.Text = "File(s)/folder(s) is ready for transferring";
+                SendingProgressBar.IsIndeterminate = false;
+                SendingStatusTextBlock.Text = "File(s)/folder(s) is ready for transferring";
 
                 var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInSendTempFolder();
 
-                var copyResults = await SendFilesToServer(allFilesInTempFolder, destinationPCIPAddress,
-                    IPAddressValidator.APP_DEFAULT_PORT);
-                var successCopiedFilesCount = copyResults.Count(x => x);
+                var copyResults = await SendFilesToServer(allFilesInTempFolder, destinationPCIPAddress);
+                var thingsSendSuccessCount = copyResults.Count(x => x);
 
-                MessageBox.Show(
-                    $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
+                // MessageBox.Show(
+                //     $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
+
+                ShowSnackbar("All the work has been completed!",
+                    $"There are {thingsSendSuccessCount} file(s) or folder(s) that were successfully sent and {thingPaths.Length - thingsSendSuccessCount} that were not");
 
             }
             catch (Exception ex)
             {
-                ResetCopyingStatusText();
-                MessageBox.Show("An error has happened: " + ex.Message);
+                ClearSendingProgressStatus();
+                OpenMessageBox("Sending failed", "An error has happened: " + ex.Message);
+                // MessageBox.Show("An error has happened: " + ex.Message);
 
                 // Trace.WriteLine(ex);
                 Log.Error(ex);
@@ -471,13 +487,23 @@ namespace LanCopyFiles.Pages
             // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
             messageBox.ButtonRightClick += MessageBox_RightButtonClick;
 
-            messageBox.Show("Something weird", "May happen");
+            messageBox.Show(title, message);
         }
 
         private void MessageBox_RightButtonClick(object sender, System.Windows.RoutedEventArgs e)
         {
             (sender as Wpf.Ui.Controls.MessageBox)?.Close();
         }
+
+        #region Hien thi thong bao snackbar
+
+        private void ShowSnackbar(string primaryMessage, string secondaryMessage)
+        {
+            (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(primaryMessage, secondaryMessage);
+        }
+
+
+        #endregion
         #endregion
     }
 }

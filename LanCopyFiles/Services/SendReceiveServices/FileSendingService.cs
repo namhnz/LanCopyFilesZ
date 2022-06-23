@@ -9,6 +9,7 @@ namespace LanCopyFiles.Services.SendReceiveServices;
 
 public class FileSendingService
 {
+    private readonly string[] _sendingFilePaths;
     private readonly string _destinationPCIPAddress;
     private readonly int _totalFilesCount;
 
@@ -26,6 +27,7 @@ public class FileSendingService
 
     public FileSendingService(string[] filePaths, string destinationPCIPAddress)
     {
+        _sendingFilePaths = filePaths;
         _totalFilesCount = filePaths.Length;
         _destinationPCIPAddress = destinationPCIPAddress;
 
@@ -53,16 +55,16 @@ public class FileSendingService
 
 
     // Chi gui cac file, khong gui folder; neu gui cac folder thi nen lai thanh file zip de gui di
-    public List<bool> SendFilesToDestinationPC(string[] filePaths)
+    public List<bool> SendFilesToDestinationPC()
     {
         // Dung de hien thi len thong bao trang thai
         _progressUpdater.StartUpdater();
 
         var sendFileResults = new List<bool>();
 
-        for (int i = 0; i < filePaths.Length; i++)
+        for (int i = 0; i < _sendingFilePaths.Length; i++)
         {
-            string fileFullPath = filePaths[i];
+            string fileFullPath = _sendingFilePaths[i];
 
             // Dung de hien thi len thong bao trang thai
             _sendingFileIndex = i;
