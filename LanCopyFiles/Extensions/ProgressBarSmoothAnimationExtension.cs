@@ -11,7 +11,14 @@ public static class ProgressBarSmoothAnimationExtension
 
     public static void SetPercent(this ProgressBar progressBar, double percentage)
     {
-        DoubleAnimation animation = new DoubleAnimation(percentage, duration);
-        progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
+        if (percentage > 0)
+        {
+            DoubleAnimation animation = new DoubleAnimation(percentage, duration);
+            progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
+        }
+        else
+        {
+            progressBar.Value = 0;
+        }
     }
 }

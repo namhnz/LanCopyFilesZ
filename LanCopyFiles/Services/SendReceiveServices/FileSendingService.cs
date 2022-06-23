@@ -16,6 +16,11 @@ public class FileSendingService
     private int _sendingFileIndex;
     // private double _totalSendingPercentage;
 
+    private FileSendingProgressUpdater _progressUpdater;
+
+    // Event cap nhat tien trinh
+    public event EventHandler<FilesSendingProgressInfoArgs> FilesSendingProgressChanged;
+
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -23,6 +28,9 @@ public class FileSendingService
     {
         _totalFilesCount = filePaths.Length;
         _destinationPCIPAddress = destinationPCIPAddress;
+
+        // Khoi tao progress updater
+        _progressUpdater = new FileSendingProgressUpdater(OnDataStartReceiving);
     }
 
     #region Chuc nang ho tro
@@ -47,30 +55,36 @@ public class FileSendingService
     // Chi gui cac file, khong gui folder; neu gui cac folder thi nen lai thanh file zip de gui di
     public List<bool> SendFilesToDestinationPC(string[] filePaths)
     {
+        // Dung de hien thi len thong bao trang thai
+        _progressUpdater.StartUpdater();
+
         var sendFileResults = new List<bool>();
 
         for (int i = 0; i < filePaths.Length; i++)
         {
-            // _fileOrFolderCopyingIndex = i;
-            string thingFullPath = filePaths[i];
+            string fileFullPath = filePaths[i];
 
-            if (File.Exists(thingFullPath))
+            // Dung de hien thi len thong bao trang thai
+            _sendingFileIndex = i;
+
+            if (File.Exists(fileFullPath))
             {
                 // Dung de hien thi len thong bao trang thai
-                // _copyingFileOrFolderName = Path.GetFileName(thingFullPath);
+                _sendingFileName = Path.GetFileName(fileFullPath);
 
-                var sendThingResult = SendFileToDestinationPC(thingFullPath, _destinationPCIPAddress);
+                var sendThingResult = SendFileToDestinationPC(fileFullPath, _destinationPCIPAddress);
                 sendFileResults.Add(sendThingResult);
             }
             else
             {
                 // throw new FileNotFoundException($"File/Folder {filePaths[i]} doesn't exist");
-                Log.Error($"File {thingFullPath} doesn't exist");
+                Log.Error($"File {fileFullPath} doesn't exist");
                 sendFileResults.Add(false);
             }
         }
 
-        // _updateProgressBarTimer.Stop();
+        // Dung de hien thi len thong bao trang thai
+        _progressUpdater.StopUpdater();
 
         return sendFileResults;
     }
@@ -102,6 +116,13 @@ public class FileSendingService
         
 
         return progressInfo;
+    }
+
+    // Dung cho event cap nhat tien trinh
+    public void OnDataStartReceiving()
+    {
+        EventHandler<FilesSendingProgressInfoArgs> handler = FilesSendingProgressChanged;
+        if (null != handler) handler(this, new FilesSendingProgressInfoArgs(ReportProgress()));
     }
 
     #endregion

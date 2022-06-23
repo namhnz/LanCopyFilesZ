@@ -17,5 +17,14 @@ public class FileSendingProgressUpdater
         };
         _updateProgressTimer.Interval = new TimeSpan(0, 0, 0, 1);
     }
-    
+
+    public void StartUpdater()
+    {
+        _updateProgressTimer.Start();
+    }
+
+    public void StopUpdater()
+    {
+        _updateProgressTimer.Stop();
+    }
 }
