@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
-using LanCopyFiles.Services.GetIPAddress;
+using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
 using log4net;
 

@@ -14,6 +14,7 @@ using LanCopyFiles.Extensions;
 using LanCopyFiles.Models;
 using LanCopyFiles.Services;
 using LanCopyFiles.Services.FilePrepare;
+using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
 using log4net;
 using Ookii.Dialogs.Wpf;

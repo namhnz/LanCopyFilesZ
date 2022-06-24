@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace LanCopyFiles.Services.GetIPAddress;
+namespace LanCopyFiles.Services.IPAddressManager;
 
 public class GetCurrentConnectionIPAddress
 {

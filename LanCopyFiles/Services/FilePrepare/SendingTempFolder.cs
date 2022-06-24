@@ -1,24 +1,25 @@
 ﻿using System;
 using System.IO;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace LanCopyFiles.Services.FilePrepare
 {
     public class SendingTempFolder
     {
-        public static void EnsureSendTempFolderExist()
-        {
-            // // Lay thu muc dang chay app
-            // var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
-            //
-            // // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-            // var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
-            //
-            // if (!Directory.Exists(copyTempFolderPath))
-            // {
-            //     Directory.CreateDirectory(copyTempFolderPath);
-            // }
-        }
+        
+
+        // public static void EnsureSendTempFolderExist()
+        // {
+        //     // // Lay thu muc dang chay app
+        //     // var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
+        //     //
+        //     // // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        //     // var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
+        //     //
+        //     // if (!Directory.Exists(copyTempFolderPath))
+        //     // {
+        //     //     Directory.CreateDirectory(copyTempFolderPath);
+        //     // }
+        // }
 
         public static void PackFileReadyForCopying(string sourceFilePath)
         {
@@ -98,6 +99,7 @@ namespace LanCopyFiles.Services.FilePrepare
         //     bool recurse = true;  // Include all files by recursing through the directory structure
         //     string filter = null; // Dont filter any files at all
         //     fastZip.CreateZip(destinationZipFileName, sourceFolderPath, recurse, filter);
-        }
     }
+}
+
 }

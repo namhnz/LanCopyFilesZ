@@ -29,8 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\FileSystemAnalyze\" />
-    <Folder Include="Services\GetIPAddress\" />
     <Folder Include="Services\StorageServices\" />
     <Folder Include="Services\PackingServices\" />
   </ItemGroup>

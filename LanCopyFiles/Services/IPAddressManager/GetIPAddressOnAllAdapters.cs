@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
-namespace LanCopyFiles.Services.GetIPAddress;
+namespace LanCopyFiles.Services.IPAddressManager;
 
 public class GetIPAddressOnAllAdapters
 {

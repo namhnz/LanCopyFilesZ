@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net.Sockets;
 using log4net;
 
-namespace LanCopyFiles.Services;
+namespace LanCopyFiles.Services.IPAddressManager;
 
 public class IPAddressValidator
 {
@@ -42,7 +42,7 @@ public class IPAddressValidator
                            x =>
                            {
                                int y;
-                               return Int32.TryParse(x, out y) && y > 255 || y < 1;
+                               return Int32.TryParse((string?)x, out y) && y > 255 || y < 1;
                            });
         return isValid;
     }
