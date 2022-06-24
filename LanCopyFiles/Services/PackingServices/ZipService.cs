@@ -12,12 +12,12 @@ public class ZipService
         get { return _instance ??= new ZipService(); }
     }
 
-    public void CompressFolderToZip(string sourceFolderPath, string destinationZipFileName)
+    public void CompressFolderToZip(string sourceFolderPath, string destinationZipFilePath)
     {
         // Them duoi .zip vao file neu chua co
-        if (!destinationZipFileName.EndsWith(".zip"))
+        if (!destinationZipFilePath.EndsWith(".zip"))
         {
-            destinationZipFileName += ".zip";
+            destinationZipFilePath += ".zip";
         }
 
         if (!Directory.Exists(sourceFolderPath))
@@ -31,7 +31,7 @@ public class ZipService
 
         bool recurse = true; // Include all files by recursing through the directory structure
         string filter = null; // Dont filter any files at all
-        fastZip.CreateZip(destinationZipFileName, sourceFolderPath, recurse, filter);
+        fastZip.CreateZip(destinationZipFilePath, sourceFolderPath, recurse, filter);
     }
 
     public void ExtractZipToFolder(string sourceZipFilePath, string destinationFolder)

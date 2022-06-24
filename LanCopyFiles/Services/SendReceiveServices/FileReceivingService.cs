@@ -20,8 +20,7 @@ public class FileReceivingService: IDisposable
     private bool _running = false;
     // private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
     private EftServer _server =
-        new EftServer(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TempFolderNames.ReceiveTempFolder) + "\\",
-            8085);
+        new EftServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
     private readonly Thread _receiverThread;
 
     private static FileReceivingService _instance;

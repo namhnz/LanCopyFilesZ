@@ -263,17 +263,17 @@ namespace LanCopyFiles.Pages
                 // Kiem tra xem duong dan la file hay folder: https://stackoverflow.com/a/1395226/7182661
                 // get the file attributes for file or directory
                 FileAttributes attr = File.GetAttributes(path);
-
+                
                 if (attr.HasFlag(FileAttributes.Directory))
                 {
                     // Its a directory
-
+                
                     SendingTempFolder.PackFolderReadyForCopying(path);
                 }
                 else
                 {
                     // Its a file
-
+                
                     SendingTempFolder.PackFileReadyForCopying(path);
                 }
             }

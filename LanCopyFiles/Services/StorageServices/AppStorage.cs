@@ -28,11 +28,12 @@ public class AppStorage
 
     public void ClearTempFolders()
     {
-        // Lay thu muc dang chay app
-        var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
-
-        // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var sendTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
+        // // Lay thu muc dang chay app
+        // var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
+        //
+        // // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        // var sendTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.SendTempFolder);
+        var sendTempFolderPath = TempFolderNames.SendTempFolderPath;
 
         if (Directory.Exists(sendTempFolderPath))
         {
@@ -55,8 +56,10 @@ public class AppStorage
             }
         }
 
-        // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var receiveTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
+        // // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        // var receiveTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
+
+        var receiveTempFolderPath = TempFolderNames.ReceiveTempFolderPath;
 
         if (Directory.Exists(receiveTempFolderPath))
         {
