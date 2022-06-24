@@ -128,14 +128,14 @@ namespace LanCopyFiles.Pages
                     var isFileBeFolderAtSource = Path.GetExtension(receivedFileName) == ".zip";
                     if (isFileBeFolderAtSource)
                     {
-                        if (FileExtractor.IsFolderAlreadyExistOnDesktop(receivedFileName))
+                        if (ReceivingTempFolder.IsFolderAlreadyExistOnDesktop(receivedFileName))
                         {
                             var replaceResult = MessageBox.Show(
                                 "There is a folder with the same name already exist on Desktop, do you want to replace that folder?",
                                 "Folder already exist", MessageBoxButton.YesNo);
                             if (replaceResult == MessageBoxResult.Yes)
                             {
-                                FileExtractor.ExtractFolderCopied(receivedFileName);
+                                ReceivingTempFolder.ExtractFolderCopied(receivedFileName);
                             }
                         }
 

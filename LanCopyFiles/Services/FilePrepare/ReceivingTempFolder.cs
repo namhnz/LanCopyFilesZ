@@ -4,20 +4,20 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace LanCopyFiles.Services.FilePrepare;
 
-public class FileExtractor
+public class ReceivingTempFolder
 {
     public static void EnsureReceiveTempFolderExist()
     {
-        // Lay thu muc dang chay app
-        var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
+        // // Lay thu muc dang chay app
+        // var currentAppFolder = AppDomain.CurrentDomain.BaseDirectory;
 
-        // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
-        var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
-
-        if (!Directory.Exists(copyTempFolderPath))
-        {
-            Directory.CreateDirectory(copyTempFolderPath);
-        }
+        // // Neu chua tao thu muc temp trong thu muc chay app thi tao thu muc temp
+        // var copyTempFolderPath = Path.Combine(currentAppFolder, TempFolderNames.ReceiveTempFolder);
+        //
+        // if (!Directory.Exists(copyTempFolderPath))
+        // {
+        //     Directory.CreateDirectory(copyTempFolderPath);
+        // }
     }
 
     public static bool IsFolderAlreadyExistOnDesktop(string sourceZipFileName)
@@ -90,17 +90,17 @@ public class FileExtractor
         ExtractZipToFolder(sourceZipFilePath, destinationExtractFolderPath);
     }
 
-    private static void ExtractZipToFolder(string sourceZipFilePath, string destinationFolder)
-    {
-        if (!File.Exists(sourceZipFilePath))
-        {
-            throw new FileNotFoundException("Khong tim  thay file zip can giai nen");
-        }
-
-        FastZip fastZip = new FastZip();
-        string fileFilter = null;
-
-        // Will always overwrite if target filenames already exist
-        fastZip.ExtractZip(sourceZipFilePath, destinationFolder, fileFilter);
-    }
+    // private static void ExtractZipToFolder(string sourceZipFilePath, string destinationFolder)
+    // {
+    //     if (!File.Exists(sourceZipFilePath))
+    //     {
+    //         throw new FileNotFoundException("Khong tim  thay file zip can giai nen");
+    //     }
+    //
+    //     FastZip fastZip = new FastZip();
+    //     string fileFilter = null;
+    //
+    //     // Will always overwrite if target filenames already exist
+    //     fastZip.ExtractZip(sourceZipFilePath, destinationFolder, fileFilter);
+    // }
 }

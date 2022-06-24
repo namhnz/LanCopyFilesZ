@@ -23,8 +23,8 @@ namespace LanCopyFiles
         {
             InitializeComponent();
 
-            FilePacker.EnsureSendTempFolderExist();
-            FileExtractor.EnsureReceiveTempFolderExist();
+            SendingTempFolder.EnsureSendTempFolderExist();
+            ReceivingTempFolder.EnsureReceiveTempFolderExist();
 
             _receiverService = FileReceivingService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>

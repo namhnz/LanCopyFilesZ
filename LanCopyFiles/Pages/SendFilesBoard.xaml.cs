@@ -5,13 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms.VisualStyles;
 using System.Windows.Input;
 using System.Windows.Threading;
-using EasyFileTransfer;
 using LanCopyFiles.Configs;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Models;
@@ -185,13 +182,8 @@ namespace LanCopyFiles.Pages
         private async Task<List<bool>> SendFilesToServer(string[] thingPaths, string destinationPCIPAddress)
         {
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
-            SendingStatusTextBlock.Text = $"Connecting to remote IP address: {destinationPCIPAddress}";
+            SendingStatusTextBlock.Text = $"Connecting to the destination PC's IP address: {destinationPCIPAddress}";
             
-            // if (!IPAddressValidator.ValidateIPv4(destinationPCIPAddress) || serverPort <= 0)
-            // {
-            //     throw new ArgumentException("Invalid destination IP address or port");
-            // }
-
             // Kiem tra xem co ket noi duoc den server khong
             await Task.Run(() =>
             {
@@ -202,51 +194,17 @@ namespace LanCopyFiles.Pages
             });
 
             // Hien thi thong bao trang thai ket noi thanh cong
-            SendingStatusTextBlock.Text = $"Connected to destination PC: {destinationPCIPAddress}";
+            SendingStatusTextBlock.Text = $"Connected to the destination PC: {destinationPCIPAddress}";
 
             // Luu lai dia chi IP trong truong hop kiem tra ket noi thanh cong
-            // _ipCopyToSectionConfig["IPAddress"].StringValue = destinationPCIPAddress;
             GlobalAppConfigs.Instance.SendFilesConfigs.SetSavedDestinationPCIPAddressConfigValue(destinationPCIPAddress);
-            // _ipCopyToSectionConfig["Port"].IntValue = serverPort;
-            // SaveConfigs();
-
+            
             // Hien thi so luong file va folder se copy
-            SendingStatusTextBlock.Text = $"{thingPaths.Length} file(s) and folder(s) will be copied";
-
-            // _updateProgressBarTimer.Start();
-            // _countTotalFilesAndFoldersCopying = thingPaths.Length;
+            SendingStatusTextBlock.Text = $"There will be {thingPaths.Length} file(s) and folder(s) sent";
+            
 
             var sendResultTask = await Task.Run(() =>
             {
-                // var sendFileResults = new List<bool>();
-
-                // for (int i = 0; i < thingPaths.Length; i++)
-                // {
-                //     _fileOrFolderCopyingIndex = i;
-                //
-                //     if (File.Exists(thingPaths[i]))
-                //     {
-                //         // Dung de hien thi len thong bao trang thai
-                //         _copyingFileOrFolderName = Path.GetFileName(thingPaths[i]);
-                //
-                //         var response = EftClient.Send(thingPaths[i], destinationPCIPAddress, serverPort);
-                //         if (response != null && response.status == 1)
-                //         {
-                //             sendFileResults.Add(true);
-                //         }
-                //         else
-                //         {
-                //             sendFileResults.Add(false);
-                //         }
-                //     }
-                //     else
-                //     {
-                //         throw new FileNotFoundException($"File {thingPaths[i]} doesn't exist");
-                //     }
-                // }
-
-                // _updateProgressBarTimer.Stop();
-
                 var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
                 var sendFileResults = fileSendingService.SendFilesToDestinationPC();
 
@@ -254,89 +212,25 @@ namespace LanCopyFiles.Pages
             });
 
             ClearSendingProgressStatus();
-            // ResetCopyingStatusText();
 
             return sendResultTask;
         }
 
         private void ClearSendingProgressStatus()
         {
-            // _fileOrFolderCopyingIndex = 0;
-            // _countTotalFilesAndFoldersCopying = 0;
-            //
-            // OnSendingProgressChanged();
-            // _updateProgressBarTimer.Stop();
             SendingProgressBar.SetPercent(0);
             SendingStatusTextBlock.Text = string.Empty;
         }
 
         private void OnSendingProgressChanged(object sender, FilesSendingProgressInfoArgs args)
         {
-            // if (_countTotalFilesAndFoldersCopying > 0)
-            // {
-            //     // SendingProgressBar.Value = EftClient.ProgressValue * (_fileOrFolderCopyingIndex + 1) /
-            //     //                           (double)_countTotalFilesAndFoldersCopying;
-            //
-            //     SendingProgressBar.SetPercent(EftClient.ProgressValue * 1 /
-            //                                   (double)_countTotalFilesAndFoldersCopying +
-            //                                   100 * _fileOrFolderCopyingIndex /
-            //                                   (double)_countTotalFilesAndFoldersCopying);
-            //
-            //     Trace.WriteLine($"Dang copy: {SendingProgressBar.Value}%");
-            //
-            //     // Hien thi len thong bao trang thai
-            //     SetCopyingStatusText(
-            //         $"Copying file {_copyingFileOrFolderName}: {Math.Ceiling(SendingProgressBar.Value)}%");
-            // }
-            // else
-            // {
-            //     SendingProgressBar.SetPercent(0);
-            // }
-
             SendingProgressBar.SetPercent(args.TotalSendingPercentage);
             SendingStatusTextBlock.Text =
                 $"Transferring file {args.SendingFileName}: {Math.Ceiling(SendingProgressBar.Value)}%";
 
             Trace.WriteLine($"Dang gui file :{SendingProgressBar.Value}%");
         }
-
-        // private int _fileOrFolderCopyingIndex;
-        // private int _countTotalFilesAndFoldersCopying;
-
-        // Nguon: https://stackoverflow.com/a/11560151/7182661
-        // private DispatcherTimer _updateProgressBarTimer;
-
-        // private void InitUpdateProgressBarTimer()
-        // {
-        //     _updateProgressBarTimer = new DispatcherTimer();
-        //     _updateProgressBarTimer.Tick += UpdateProgressBarTimer_Tick;
-        //     _updateProgressBarTimer.Interval = new TimeSpan(0, 0, 0, 1);
-        //     // _updateProgressBarTimer.Start();
-        // }
-
-        // private void UpdateProgressBarTimer_Tick(object sender, EventArgs e)
-        // {
-        //     // code goes here
-        //     OnSendingProgressChanged();
-        // }
-
-        #endregion
-
-        #region Hien thi thong tin ve tac vu dang thuc hien
-
-        // private string _copyingFileOrFolderName;
-
-        // private void SetCopyingStatusText(string copyingStatusText)
-        // {
-        //     SendingStatusTextBlock.Text = copyingStatusText;
-        // }
-
-        // private void ResetCopyingStatusText()
-        // {
-        //     _copyingFileOrFolderName = "";
-        //     SendingStatusTextBlock.Text = "";
-        // }
-
+        
         #endregion
 
         #region Luu lai cac cai dat
@@ -347,20 +241,6 @@ namespace LanCopyFiles.Pages
 
         private void LoadConfigs()
         {
-            // if (File.Exists("user_data.cfg"))
-            // {
-            //     _config = Configuration.LoadFromFile("user_data.cfg");
-            // }
-            // else
-            // {
-            //     _config = new Configuration();
-            // }
-            //
-            // _ipCopyToSectionConfig = _config["IPCopyTo"];
-            //
-            // // Lay cac gia tri cac duong dan da luu
-            // var ipCopyToAddress = _ipCopyToSectionConfig["IPAddress"].StringValue;
-
             var destinationPCIPAddress =
                 GlobalAppConfigs.Instance.SendFilesConfigs.GetSavedDestinationPCIPAddressConfigValue();
 
@@ -368,19 +248,9 @@ namespace LanCopyFiles.Pages
             {
                 destinationPCIPAddressTextBox.Text = destinationPCIPAddress;
             }
-
-            // var ipCopyToPort = _ipCopyToSectionConfig["Port"].IntValue;
-            // if (ipCopyToPort > 0 && ipCopyToPort <= 65535)
-            // {
-            //     serverPortTextBox.Text = ipCopyToPort.ToString();
-            // }
+            
         }
-
-        // private void SaveConfigs()
-        // {
-        //     _config.SaveToFile("user_data.cfg");
-        // }
-
+        
         #endregion
 
         #region Chuyen toan bo cac duong dan da chon vao thu muc temp
@@ -397,13 +267,13 @@ namespace LanCopyFiles.Pages
                 {
                     // Its a directory
 
-                    FilePacker.PackFolderReadyForCopying(path);
+                    SendingTempFolder.PackFolderReadyForCopying(path);
                 }
                 else
                 {
                     // Its a file
 
-                    FilePacker.PackFileReadyForCopying(path);
+                    SendingTempFolder.PackFileReadyForCopying(path);
                 }
             }
         }
@@ -446,9 +316,6 @@ namespace LanCopyFiles.Pages
                 var copyResults = await SendFilesToServer(allFilesInTempFolder, destinationPCIPAddress);
                 var thingsSendSuccessCount = copyResults.Count(x => x);
 
-                // MessageBox.Show(
-                //     $"Copied {successCopiedFilesCount} file(s)/folder(s) successfully and {copyResults.Count - successCopiedFilesCount} fail");
-
                 ShowSnackbar("All the work has been completed!",
                     $"There are {thingsSendSuccessCount} file(s) or folder(s) that were successfully sent and {thingPaths.Length - thingsSendSuccessCount} that were not");
 
@@ -457,9 +324,7 @@ namespace LanCopyFiles.Pages
             {
                 ClearSendingProgressStatus();
                 OpenMessageBox("Sending failed", "An error has happened: " + ex.Message);
-                // MessageBox.Show("An error has happened: " + ex.Message);
-
-                // Trace.WriteLine(ex);
+                
                 Log.Error(ex);
             }
             finally
@@ -495,6 +360,8 @@ namespace LanCopyFiles.Pages
             (sender as Wpf.Ui.Controls.MessageBox)?.Close();
         }
 
+        #endregion
+
         #region Hien thi thong bao snackbar
 
         private void ShowSnackbar(string primaryMessage, string secondaryMessage)
@@ -503,7 +370,6 @@ namespace LanCopyFiles.Pages
         }
 
 
-        #endregion
         #endregion
     }
 }
