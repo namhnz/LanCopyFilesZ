@@ -11,7 +11,9 @@ using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
+using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
+using Clipboard = System.Windows.Clipboard;
 
 namespace LanCopyFiles.Pages
 {
@@ -112,8 +114,8 @@ namespace LanCopyFiles.Pages
             }
             finally
             {
-                // // Xoa toan bo file trong cac thu muc send-temp, receive-temp
-                // AppStorage.Instance.ClearTempFolders();
+                // Xoa toan bo file trong cac thu muc send-temp, receive-temp
+                AppStorage.Instance.ClearTempFolders();
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -157,15 +159,26 @@ namespace LanCopyFiles.Pages
             return Application.Current.Dispatcher.Invoke(() =>
             {
                 var messageBox = new Wpf.Ui.Controls.MessageBox();
+                messageBox.Title = title;
+                messageBox.Content = message;
+
                 var messageBoxResult = ConfirmMessageBoxResult.Cancel;
 
                 messageBox.ButtonLeftName = "Yes";
                 messageBox.ButtonRightName = "No";
 
-                messageBox.ButtonLeftClick += (sender, args) => messageBoxResult = ConfirmMessageBoxResult.Yes;
-                messageBox.ButtonRightClick += (sender, args) => messageBoxResult = ConfirmMessageBoxResult.No;
+                messageBox.ButtonLeftClick += (sender, args) =>
+                {
+                    messageBoxResult = ConfirmMessageBoxResult.Yes;
+                    messageBox.Close();
+                };
+                messageBox.ButtonRightClick += (sender, args) =>
+                {
+                    messageBoxResult = ConfirmMessageBoxResult.No;
+                    messageBox.Close();
+                };
 
-                messageBox.Show(title, message);
+                messageBox.ShowDialog();
 
                 return messageBoxResult;
             });
@@ -182,7 +195,10 @@ namespace LanCopyFiles.Pages
                 var messageBox = new Wpf.Ui.Controls.MessageBox();
 
                 // messageBox.ButtonLeftName = "Hello World";
+                messageBox.ButtonLeftAppearance = ControlAppearance.Transparent;
+
                 messageBox.ButtonRightName = "Close";
+                messageBox.ButtonRightAppearance = ControlAppearance.Primary;
 
                 // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
                 messageBox.ButtonRightClick += MessageBox_RightButtonClick;

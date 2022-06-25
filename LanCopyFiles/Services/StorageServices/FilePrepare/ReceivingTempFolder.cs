@@ -40,7 +40,10 @@ public class ReceivingTempFolder
             }
 
             // Giai nen ra file zip desktop
-            ZipService.Instance.ExtractZipToFolder(filePath, destinationExtractFolderPath);
+            if (!Directory.Exists(destinationExtractFolderPath))
+            {
+                ZipService.Instance.ExtractZipToFolder(filePath, destinationExtractFolderPath);
+            }
 
             return;
         }
@@ -66,7 +69,10 @@ public class ReceivingTempFolder
         }
 
         // Di chuyen file ra desktop
-        File.Move(filePath, destinationFilePath);
+        if (!File.Exists(destinationFilePath))
+        {
+            File.Move(filePath, destinationFilePath);
+        }
     }
 
     public bool IsExistOnDesktop(string fileName)
@@ -103,7 +109,7 @@ public class ReceivingTempFolder
         var destinationFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
             destinationFileName);
 
-        // Di chuyen file ra desktop
-        return Directory.Exists(destinationFilePath);
+        // Kiem tra xem file da ton tai tren desktop hay chua
+        return File.Exists(destinationFilePath);
     }
 }
