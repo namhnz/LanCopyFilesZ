@@ -1,10 +1,10 @@
-﻿<Page x:Class="LanCopyFiles.Pages.ReceiveFilesBoard"
+﻿<ui:UiPage x:Class="LanCopyFiles.Pages.ReceiveFilesBoard"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:LanCopyFiles.Pages"
-      xmlns:wpfui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="800"
       Title="ReceiveFilesBoard">
@@ -38,11 +38,11 @@
                 Margin="0,24,0,0"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                 Text="Ethernet IP Address" />
-            <wpfui:CardExpander
+            <ui:CardExpander
                 x:Name="currentConnectionIPAddressDisplayCardExpander"
                 Margin="0,8,0,0"
                 Icon="Wifi120">
-                <wpfui:CardExpander.Header>
+                <ui:CardExpander.Header>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -59,7 +59,7 @@
                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                     Text="Use this IP Address to receive files/folders: 127.0.0.1" />
                         </StackPanel>
-                        <wpfui:Button
+                        <ui:Button
                                 Grid.Column="1"
                                 Margin="0,0,16,0"
                                 Padding="30,6"
@@ -69,12 +69,12 @@
                                 x:Name="copyIPAddressButton"
                                 Click="copyIPAddressButton_Click"/>
                         </Grid>
-                    </wpfui:CardExpander.Header>
+                    </ui:CardExpander.Header>
                 
                 <TextBlock Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215" 
                            x:Name="allIPAddressOnAllAdaperDisplayTextBlock"/>
-            </wpfui:CardExpander>
+            </ui:CardExpander>
         </StackPanel>
 
     </VirtualizingStackPanel>
-</Page>
+</ui:UiPage>

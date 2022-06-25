@@ -15,7 +15,8 @@ public class ReceivingTempFolder
         }
     }
 
-    public void MoveToDesktop(string fileName) /* Vi du: test_file.zip, dark.mkv, mind-map.zip.iszipfile */
+    public void
+        MoveToDesktop(string fileName, bool replaceIfExist) /* Vi du: test_file.zip, dark.mkv, mind-map.zip.iszipfile */
     {
         // Duong dan day du cua file trong thu muc receive temp
         var filePath = Path.Combine(TempFolderNames.ReceiveTempFolderPath, fileName);
@@ -32,11 +33,11 @@ public class ReceivingTempFolder
             var destinationExtractFolderPath =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), folderName);
 
-            // // Kiem tra xem folder giai nen da ton tai hay chua, neu co thi xoa folder do di
-            // if (Directory.Exists(destinationExtractFolderPath))
-            // {
-            //     Directory.Delete(destinationExtractFolderPath);
-            // }
+            // Kiem tra xem folder giai nen da ton tai hay chua, neu co thi xoa folder do di
+            if (replaceIfExist && Directory.Exists(destinationExtractFolderPath))
+            {
+                Directory.Delete(destinationExtractFolderPath);
+            }
 
             // Giai nen ra file zip desktop
             ZipService.Instance.ExtractZipToFolder(filePath, destinationExtractFolderPath);
@@ -57,6 +58,12 @@ public class ReceivingTempFolder
 
         var destinationFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
             destinationFileName);
+
+        // Kiem tra xem file da ton tai tren desktop hay chua, neu co thi xoa file do tren desktop di de thay the file moi
+        if (replaceIfExist && File.Exists(destinationFilePath))
+        {
+            File.Delete(destinationFilePath);
+        }
 
         // Di chuyen file ra desktop
         File.Move(filePath, destinationFilePath);

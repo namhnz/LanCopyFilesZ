@@ -1,21 +1,24 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
+using EasyFileTransfer.Model;
+using LanCopyFiles.Models;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
+using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
+using Wpf.Ui.Controls;
 
 namespace LanCopyFiles.Pages
 {
     /// <summary>
     /// Interaction logic for ReceiveFilesBoard.xaml
     /// </summary>
-    public partial class ReceiveFilesBoard : Page
+    public partial class ReceiveFilesBoard : UiPage
     {
         private static readonly ILog Log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -33,21 +36,9 @@ namespace LanCopyFiles.Pages
 
             _receiverService = FileReceivingService.Instance;
 
-            _receiverService.DataStartReceivingOnServer += (sender, args) =>
-            {
-                Dispatcher.BeginInvoke(
-                    DispatcherPriority.Normal,
-                    () => { OnDataStartReceving(); }
-                );
-            };
+            _receiverService.DataStartReceivingOnServer += OnDataStartReceiving;
 
-            _receiverService.DataFinishReceivingOnServer += (sender, args) =>
-            {
-                Dispatcher.BeginInvoke(
-                    DispatcherPriority.Normal,
-                    () => OnDataFinishReceiving(args.ReceivingFileName)
-                );
-            };
+            _receiverService.DataFinishReceivingOnServer += OnDataFinishReceiving;
         }
 
         // Nguon: https://stackoverflow.com/a/24320649/7182661
@@ -59,15 +50,30 @@ namespace LanCopyFiles.Pages
 
         private void InitIPAddressValues()
         {
+            // Toan bo dia chi IP dang co tren may
+            var allIPAddressesOnAllAdapters = GetIPAddressOnAllAdapters.GetAllIPv4();
+
             // Dia chi IP uu tien nhat
             var currentConnectionIPAddress = GetCurrentConnectionIPAddress.GetIPv4();
+            // Kiem tra xem co gia tri nao tra ve hay khong
+            if (!IPAddressValidator.CheckIfValidFormatIPv4Only(currentConnectionIPAddress))
+            {
+                // Neu khong co gia tri nao tra ve thi lay dia chi IP dau tien trong danh sach cac dia chi IP hien dang co tren may
+                if (allIPAddressesOnAllAdapters.Any())
+                {
+                    currentConnectionIPAddress = allIPAddressesOnAllAdapters.First();
+                }
+            }
+
             preferredIPAddressTextBlock.Text =
                 $"To receive files and folders, use this IP address: {currentConnectionIPAddress}";
 
+
             // Toan bo dia chi IP khac
-            var allIOnAllAdapters = GetIPAddressOnAllAdapters.GetAllIPv4().Except(new[] { currentConnectionIPAddress });
+            var allOTherIPAddressesOnAllAdapters =
+                allIPAddressesOnAllAdapters.Except(new[] { currentConnectionIPAddress });
             allIPAddressOnAllAdaperDisplayTextBlock.Text =
-                "Other IP addresses on this PC:\n" + string.Join("\n", allIOnAllAdapters.ToArray());
+                "Other IP addresses on this PC:\n" + string.Join("\n", allOTherIPAddressesOnAllAdapters.ToArray());
         }
 
         private void copyIPAddressButton_Click(object sender, RoutedEventArgs e)
@@ -77,115 +83,130 @@ namespace LanCopyFiles.Pages
             Clipboard.SetText(currentConnectionIPAddress);
         }
 
-        private void OnDataStartReceving()
+        private void OnDataStartReceiving(object sender, DataReceivingArgs args)
         {
-            try
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 receivingFileAnimationStackPanel.Visibility = Visibility.Visible;
                 showAllIPAddressesStackPanel.Visibility = Visibility.Hidden;
+            });
+        }
+
+        private async void OnDataFinishReceiving(object sender, DataReceivingArgs args)
+        {
+            var receivingFileName = args.ReceivingFileName;
+
+            try
+            {
+                await Task.Run(() => MoveReceivedThingToDesktop(receivingFileName));
+
+                // Received file/folder successfully
+                ShowSnackbar("Just receive a file/folder from another PC!",
+                    $"The file/folder named {receivingFileName} was arrived, you can check it on Desktop");
             }
             catch (Exception ex)
             {
                 Log.Error(ex);
-                MessageBox.Show("An error has happened: " + ex.Message);
+                OpenMessageBox("An error has happened",
+                    "There was an error when receiving a file from another PC: " + ex.Message);
             }
-        }
-
-        private async void OnDataFinishReceiving(string receivingFileName)
-        {
-            try
+            finally
             {
-                await ExtractRemoveOrMoveReceivedFileToDesktop(receivingFileName);
+                // // Xoa toan bo file trong cac thu muc send-temp, receive-temp
+                // AppStorage.Instance.ClearTempFolders();
 
-                receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
-                showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex);
-                MessageBox.Show("An error has happened: " + ex.Message);
-            }
-        }
-
-        private async Task ExtractRemoveOrMoveReceivedFileToDesktop(string receivedFileName)
-        {
-            try
-            {
-                // Neu ten file la duong dan day du thi xoa phan duong dan
-                if (receivedFileName.StartsWith(TempFolderNames.ReceiveTempFolder))
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    receivedFileName =
-                        receivedFileName.Substring(TempFolderNames.ReceiveTempFolder.Length +
-                                                   1); // Cong them 1 la do co dau \
-                }
-
-                var receivedFilePath = Path.Combine(TempFolderNames.ReceiveTempFolder, receivedFileName);
-
-                await Task.Run(() =>
-                {
-                    var isFileBeFolderAtSource = Path.GetExtension(receivedFileName) == ".zip";
-                    if (isFileBeFolderAtSource)
-                    {
-                        if (ReceivingTempFolder.IsFolderAlreadyExistOnDesktop(receivedFileName))
-                        {
-                            var replaceResult = MessageBox.Show(
-                                "There is a folder with the same name already exist on Desktop, do you want to replace that folder?",
-                                "Folder already exist", MessageBoxButton.YesNo);
-                            if (replaceResult == MessageBoxResult.Yes)
-                            {
-                                ReceivingTempFolder.ExtractFolderCopied(receivedFileName);
-                            }
-                        }
-
-                        File.Delete(receivedFilePath);
-                        // Trace.WriteLine("Da giai nen folder ra desktop");
-                        Log.Info("Da giai nen folder ra desktop");
-                    }
-                    else
-                    {
-                        var moveToDesktopFilePath =
-                            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), receivedFileName);
-                        if (File.Exists(moveToDesktopFilePath))
-                        {
-                            var replaceResult = MessageBox.Show(
-                                "There is a file with the same name already exist on Desktop, do you want to replace that file?",
-                                "Folder already exist", MessageBoxButton.YesNo);
-                            if (replaceResult == MessageBoxResult.Yes)
-                            {
-                                File.Delete(moveToDesktopFilePath);
-                                File.Move(receivedFilePath, moveToDesktopFilePath);
-                            }
-                        }
-                        else
-                        {
-                            File.Move(receivedFilePath, moveToDesktopFilePath);
-                        }
-
-                        // Trace.WriteLine("Da di chuyen file ra desktop");
-                        Log.Info("Da di chuyen file ra desktop");
-                    }
-
-                    // Received file/folder successfully
-                    ShowReceivedThingSnackbar(receivedFileName);
+                    receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
+                    showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
                 });
             }
-            catch (Exception ex)
-            {
-                
-                Log.Error(ex);
-                MessageBox.Show("An error has happened: " + ex.Message);
-            }
         }
 
-        #region Hien thi thong bao
-
-        private void ShowReceivedThingSnackbar(string receivedThingName)
+        private void MoveReceivedThingToDesktop(string receivedThingName)
         {
-            (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(
-                "Just receive a file/folder from another PC!",
-                $"The file/folder named {receivedThingName} was arrived, you can check it on Desktop");
+            // Neu ten file la duong dan day du thi xoa phan duong dan
+            if (receivedThingName.StartsWith(TempFolderNames.ReceiveTempFolder))
+            {
+                receivedThingName =
+                    receivedThingName.Substring(TempFolderNames.ReceiveTempFolder.Length +
+                                                1); // Cong them 1 la do co dau \
+            }
+
+            // var receivedThingPath = Path.Combine(TempFolderNames.ReceiveTempFolder, receivedThingName);
+
+            ConfirmMessageBoxResult replaceResult = ConfirmMessageBoxResult.No;
+
+            // Neu file hoac folder da nhan ton tai tren desktop
+            if (AppStorage.Instance.ReceivingTempFolder.IsExistOnDesktop(receivedThingName))
+            {
+                // Hoi nguoi dung xem co muon thay the hay khong
+                replaceResult = OpenConfirmMessageBox("File or folder already exists",
+                    "There is a file or folder with the same name already existing on your desktop. Do you want to replace that file or folder?");
+            }
+
+            // Tien hanh di chuyen file hoac folder ra desktop
+            AppStorage.Instance.ReceivingTempFolder.MoveToDesktop(receivedThingName,
+                replaceResult == ConfirmMessageBoxResult.Yes);
         }
 
+        #region Hien thi MessageBox lua chon
+
+        private ConfirmMessageBoxResult OpenConfirmMessageBox(string title, string message)
+        {
+            return Application.Current.Dispatcher.Invoke(() =>
+            {
+                var messageBox = new Wpf.Ui.Controls.MessageBox();
+                var messageBoxResult = ConfirmMessageBoxResult.Cancel;
+
+                messageBox.ButtonLeftName = "Yes";
+                messageBox.ButtonRightName = "No";
+
+                messageBox.ButtonLeftClick += (sender, args) => messageBoxResult = ConfirmMessageBoxResult.Yes;
+                messageBox.ButtonRightClick += (sender, args) => messageBoxResult = ConfirmMessageBoxResult.No;
+
+                messageBox.Show(title, message);
+
+                return messageBoxResult;
+            });
+        }
+
+        #endregion
+
+        #region Hien thi MessageBox
+
+        private void OpenMessageBox(string title, string message)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var messageBox = new Wpf.Ui.Controls.MessageBox();
+
+                // messageBox.ButtonLeftName = "Hello World";
+                messageBox.ButtonRightName = "Close";
+
+                // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
+                messageBox.ButtonRightClick += MessageBox_RightButtonClick;
+
+                messageBox.Show(title, message);
+            });
+        }
+
+        private void MessageBox_RightButtonClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            (sender as Wpf.Ui.Controls.MessageBox)?.Close();
+        }
+
+        #endregion
+
+        #region Hien thi thong bao snackbar
+
+        private void ShowSnackbar(string primaryMessage, string secondaryMessage)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(primaryMessage, secondaryMessage);
+            });
+        }
 
         #endregion
     }

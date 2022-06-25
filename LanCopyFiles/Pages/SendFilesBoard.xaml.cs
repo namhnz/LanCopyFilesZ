@@ -1,32 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LanCopyFiles.Configs;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Models;
-using LanCopyFiles.Services;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
-using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
 using Ookii.Dialogs.Wpf;
-using SharpConfig;
+using Wpf.Ui.Controls;
 
 namespace LanCopyFiles.Pages
 {
     /// <summary>
     /// Interaction logic for SendFilesBoard.xaml
     /// </summary>
-    public partial class SendFilesBoard : Page
+    public partial class SendFilesBoard : UiPage
     {
         private static readonly ILog Log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -304,10 +300,11 @@ namespace LanCopyFiles.Pages
             }
             catch (Exception ex)
             {
+                Log.Error(ex);
+
                 ClearSendingProgressStatus();
                 OpenMessageBox("Sending failed", "An error has happened: " + ex.Message);
                 
-                Log.Error(ex);
             }
             finally
             {

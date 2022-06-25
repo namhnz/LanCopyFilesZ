@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\FilePrepare\" />
     <Folder Include="Services\PackingServices\" />
   </ItemGroup>
 
