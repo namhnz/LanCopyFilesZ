@@ -43,12 +43,12 @@ namespace LanCopyFiles.Pages
             _receiverService.DataFinishReceivingOnServer += OnDataFinishReceiving;
         }
 
-        // Nguon: https://stackoverflow.com/a/24320649/7182661
-        private void DataTransferingGifMediaElement_OnMediaEnded(object sender, RoutedEventArgs e)
-        {
-            dataTransferingGifMediaElement.Position = TimeSpan.FromMilliseconds(1);
-            dataTransferingGifMediaElement.Play();
-        }
+        // // Nguon: https://stackoverflow.com/a/24320649/7182661
+        // private void DataTransferingGifMediaElement_OnMediaEnded(object sender, RoutedEventArgs e)
+        // {
+        //     dataTransferingGifMediaElement.Position = TimeSpan.FromMilliseconds(1);
+        //     dataTransferingGifMediaElement.Play();
+        // }
 
         private void InitIPAddressValues()
         {
@@ -80,7 +80,7 @@ namespace LanCopyFiles.Pages
 
         private void copyIPAddressButton_Click(object sender, RoutedEventArgs e)
         {
-            var currentConnectionIPAddress = GetCurrentConnectionIPAddress.GetIPv4();
+            var currentConnectionIPAddress = preferredIPAddressTextBlock.Text.Split(':')[1].Trim();
 
             Clipboard.SetText(currentConnectionIPAddress);
         }
@@ -90,7 +90,7 @@ namespace LanCopyFiles.Pages
             Application.Current.Dispatcher.Invoke(() =>
             {
                 receivingFileAnimationStackPanel.Visibility = Visibility.Visible;
-                showAllIPAddressesStackPanel.Visibility = Visibility.Hidden;
+                showAllIPAddressesStackPanel.Visibility = Visibility.Collapsed;
             });
         }
 
@@ -114,8 +114,8 @@ namespace LanCopyFiles.Pages
             }
             finally
             {
-                // Xoa toan bo file trong cac thu muc send-temp, receive-temp
-                AppStorage.Instance.ClearTempFolders();
+                // Xoa file da nhan trong thu muc temp
+                AppStorage.Instance.ReceivingTempFolder.Delete(receivingFileName);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -194,14 +194,17 @@ namespace LanCopyFiles.Pages
             {
                 var messageBox = new Wpf.Ui.Controls.MessageBox();
 
-                // messageBox.ButtonLeftName = "Hello World";
-                messageBox.ButtonLeftAppearance = ControlAppearance.Transparent;
+                messageBox.ShowFooter = false;
 
-                messageBox.ButtonRightName = "Close";
-                messageBox.ButtonRightAppearance = ControlAppearance.Primary;
 
-                // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
-                messageBox.ButtonRightClick += MessageBox_RightButtonClick;
+                // // messageBox.ButtonLeftName = "Hello World";
+                // messageBox.ButtonLeftAppearance = ControlAppearance.Transparent;
+                //
+                // messageBox.ButtonRightName = "Close";
+                // messageBox.ButtonRightAppearance = ControlAppearance.Primary;
+                //
+                // // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
+                // messageBox.ButtonRightClick += MessageBox_RightButtonClick;
 
                 messageBox.Show(title, message);
             });

@@ -55,6 +55,10 @@ namespace EasyFileTransfer
                 SocketHandler obj_hadler = new SocketHandler(tc, SaveTo);
                 System.Threading.Thread obj_thread = new System.Threading.Thread(() =>
                     obj_hadler.ProcessSocketRequest(OnDataStartReceiving, OnDataFinishReceiving));
+                
+                // Thiet dat chay o che do background de khi thoat app thi thread cung thoat
+                obj_thread.IsBackground = true;
+
                 obj_thread.Start();
             }
         }

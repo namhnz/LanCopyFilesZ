@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:LanCopyFiles.Pages"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
       mc:Ignorable="d"
       d:DesignHeight="600" d:DesignWidth="800"
       Title="ReceiveFilesBoard">
@@ -14,14 +15,18 @@
         IsVirtualizing="True"
         VirtualizationMode="Recycling">
 
-        <StackPanel x:Name="receivingFileAnimationStackPanel">
-            <MediaElement Source="Images/data-transfering.gif"
-                          LoadedBehavior="Play" Visibility="Visible"
-                          Height="500"
-                          x:Name="dataTransferingGifMediaElement"
-                          MediaEnded="DataTransferingGifMediaElement_OnMediaEnded"
-                          UnloadedBehavior="Manual"
-            />
+        <StackPanel x:Name="receivingFileAnimationStackPanel"
+                    Visibility="Visible">
+            <!-- <MediaElement Source="Images/data-transfering.gif" -->
+            <!--               LoadedBehavior="Play"  -->
+            <!--               Height="500" -->
+            <!--               x:Name="dataTransferingGifMediaElement" -->
+            <!--               MediaEnded="DataTransferingGifMediaElement_OnMediaEnded" -->
+            <!--               UnloadedBehavior="Manual" -->
+            <!-- /> -->
+            <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif" 
+                   gif:AnimationBehavior.RepeatBehavior="Forever"
+                   Height="500"></Image>
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock
                     Margin="0,8,0,0"
@@ -33,7 +38,8 @@
             </StackPanel>
         </StackPanel>
 
-        <StackPanel x:Name="showAllIPAddressesStackPanel">
+        <StackPanel x:Name="showAllIPAddressesStackPanel"
+                    Visibility="Visible">
             <TextBlock
                 Margin="0,24,0,0"
                 Foreground="{DynamicResource TextFillColorSecondaryBrush}"
@@ -57,7 +63,7 @@
                                     x:Name="preferredIPAddressTextBlock"
                                     FontSize="12"
                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="Use this IP Address to receive files/folders: 127.0.0.1" />
+                                    Text="To receive files and folders, use this IP address: 127.0.0.1" />
                         </StackPanel>
                         <ui:Button
                                 Grid.Column="1"

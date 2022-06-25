@@ -14,9 +14,9 @@
 
   <ItemGroup>
     <Content Include="app_icon.ico" />
-    <Content Include="Images\data-transfering.gif">
+    <Resource Include="Images\data-transfering.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +26,7 @@
     <PackageReference Include="sharpconfig" Version="3.2.9.1" />
     <PackageReference Include="SharpZipLib" Version="1.3.3" />
     <PackageReference Include="WPF-UI" Version="2.0.1" />
+    <PackageReference Include="XamlAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>

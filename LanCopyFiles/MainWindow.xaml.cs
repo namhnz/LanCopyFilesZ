@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
@@ -28,7 +30,6 @@ namespace LanCopyFiles
                 Dispatcher.BeginInvoke(
                     DispatcherPriority.Background,
                     new Action(() => RootNavigation.Navigate(("receive-data-page")))
-
                 );
             };
 
@@ -47,6 +48,5 @@ namespace LanCopyFiles
             // Thoat hoan toan tat ca cac thread
             Environment.Exit(Environment.ExitCode);
         }
-        
     }
 }
