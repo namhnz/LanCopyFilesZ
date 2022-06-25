@@ -83,7 +83,7 @@ namespace LanCopyFiles.Pages
             Clipboard.SetText(currentConnectionIPAddress);
         }
 
-        private void OnDataStartReceiving(object sender, DataReceivingArgs args)
+        private void OnDataStartReceiving(object? sender, DataReceivingArgs args)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -92,7 +92,7 @@ namespace LanCopyFiles.Pages
             });
         }
 
-        private async void OnDataFinishReceiving(object sender, DataReceivingArgs args)
+        private async void OnDataFinishReceiving(object? sender, DataReceivingArgs args)
         {
             var receivingFileName = args.ReceivingFileName;
 

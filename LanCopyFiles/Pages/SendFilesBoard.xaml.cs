@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -152,7 +153,7 @@ namespace LanCopyFiles.Pages
         #endregion
 
 
-        #region Phan thuc thi khi su dung chuot phai copy/paste vao panel 
+        #region Phan thuc thi khi su dung chuot phai copy/paste vao panel
 
         private async void FilesOrFoldersPickerContextMenuPasteItem_OnClick(object sender, RoutedEventArgs e)
         {
@@ -181,7 +182,7 @@ namespace LanCopyFiles.Pages
         {
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
             SendingStatusTextBlock.Text = $"Connecting to the destination PC's IP address: {destinationPCIPAddress}";
-            
+
             // Kiem tra xem co ket noi duoc den server khong
             await Task.Run(() =>
             {
@@ -195,20 +196,29 @@ namespace LanCopyFiles.Pages
             SendingStatusTextBlock.Text = $"Connected to the destination PC: {destinationPCIPAddress}";
 
             // Luu lai dia chi IP trong truong hop kiem tra ket noi thanh cong
-            GlobalAppConfigs.Instance.SendFilesConfigs.SetSavedDestinationPCIPAddressConfigValue(destinationPCIPAddress);
-            
+            GlobalAppConfigs.Instance.SendFilesConfigs
+                .SetSavedDestinationPCIPAddressConfigValue(destinationPCIPAddress);
+
             // Hien thi so luong file va folder se copy
             SendingStatusTextBlock.Text = $"There will be {thingPaths.Length} file(s) and folder(s) sent";
-            
+
 
             var sendResultTask = await Task.Run(() =>
             {
+                // Tao trinh gui file moi
                 var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
+
+                // Hien thi tien trinh gui file len UI
+                fileSendingService.FilesSendingProgressChanged += OnSendingProgressChanged;
+
+                // Gui file den may dich
                 var sendFileResults = fileSendingService.SendFilesToDestinationPC();
 
                 return sendFileResults;
             });
 
+            // Tam dung 2s de progress bar chay len duoc 100%
+            await Task.Delay(TimeSpan.FromSeconds(2));
             ClearSendingProgressStatus();
 
             return sendResultTask;
@@ -220,15 +230,18 @@ namespace LanCopyFiles.Pages
             SendingStatusTextBlock.Text = string.Empty;
         }
 
-        private void OnSendingProgressChanged(object sender, FilesSendingProgressInfoArgs args)
+        private void OnSendingProgressChanged(object? sender, FilesSendingProgressInfoArgs args)
         {
-            SendingProgressBar.SetPercent(args.TotalSendingPercentage);
-            SendingStatusTextBlock.Text =
-                $"Transferring file {args.SendingFileName}: {Math.Ceiling(SendingProgressBar.Value)}%";
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                SendingProgressBar.SetPercent(args.TotalSendingPercentage);
+                SendingStatusTextBlock.Text =
+                    $"Transferring file {args.SendingFileName}: {Math.Ceiling(args.TotalSendingPercentage)}%";
+            });
 
-            Trace.WriteLine($"Dang gui file :{SendingProgressBar.Value}%");
+            Trace.WriteLine($"Dang gui file :{args.TotalSendingPercentage}%");
         }
-        
+
         #endregion
 
         #region Luu lai cac cai dat
@@ -246,11 +259,10 @@ namespace LanCopyFiles.Pages
             {
                 destinationPCIPAddressTextBox.Text = destinationPCIPAddress;
             }
-            
         }
-        
+
         #endregion
-        
+
         #region Copy for all
 
         public async Task StartSendingProcess(string[] thingPaths)
@@ -296,7 +308,6 @@ namespace LanCopyFiles.Pages
                 // Hien thi ket qua
                 ShowSnackbar("All the work has been completed!",
                     $"There are {thingsSendSuccessCount} file(s) or folder(s) that were successfully sent and {thingPaths.Length - thingsSendSuccessCount} that were not");
-
             }
             catch (Exception ex)
             {
@@ -304,7 +315,6 @@ namespace LanCopyFiles.Pages
 
                 ClearSendingProgressStatus();
                 OpenMessageBox("Sending failed", "An error has happened: " + ex.Message);
-                
             }
             finally
             {
@@ -313,7 +323,6 @@ namespace LanCopyFiles.Pages
 
                 // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
                 FilesPickerCardAction.IsEnabled = true;
-
             }
         }
 
@@ -347,7 +356,6 @@ namespace LanCopyFiles.Pages
         {
             (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(primaryMessage, secondaryMessage);
         }
-
 
         #endregion
     }

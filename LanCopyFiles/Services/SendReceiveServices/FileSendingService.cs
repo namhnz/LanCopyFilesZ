@@ -33,7 +33,7 @@ public class FileSendingService
         _destinationPCIPAddress = destinationPCIPAddress;
 
         // Khoi tao progress updater
-        _progressUpdater = new FileSendingProgressUpdater(OnDataStartReceiving);
+        _progressUpdater = new FileSendingProgressUpdater(ReportSendingProgress);
     }
 
     #region Chuc nang ho tro
@@ -122,7 +122,7 @@ public class FileSendingService
     }
 
     // Dung cho event cap nhat tien trinh
-    public void OnDataStartReceiving()
+    private void ReportSendingProgress()
     {
         EventHandler<FilesSendingProgressInfoArgs> handler = FilesSendingProgressChanged;
         if (null != handler) handler(this, new FilesSendingProgressInfoArgs(ReportProgress()));
