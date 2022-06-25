@@ -7,24 +7,6 @@ namespace LanCopyFiles.Services.IPAddressManager;
 
 public class IPAddressValidator
 {
-    // public static bool ValidateIPv4(string ipAddressString)
-    // {
-    //     if (CheckIfValidFormatIPv4Only(ipAddressString))
-    //     {
-    //         return false;
-    //     }
-    //
-    //     string[] splitValues = ipAddressString.Split('.');
-    //     if (splitValues.Length != 4)
-    //     {
-    //         return false;
-    //     }
-    //
-    //     byte tempForParsing;
-    //
-    //     return splitValues.All(r => byte.TryParse(r, out tempForParsing));
-    // }
-
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
