@@ -4,7 +4,7 @@ using System.Threading;
 using System.Windows;
 using EasyFileTransfer;
 using EasyFileTransfer.Model;
-using LanCopyFiles.Services.FilePrepare;
+using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
 
 namespace LanCopyFiles.Services.SendReceiveServices;

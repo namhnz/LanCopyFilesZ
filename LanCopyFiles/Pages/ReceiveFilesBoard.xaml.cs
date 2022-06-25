@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using LanCopyFiles.Services;
-using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
+using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
 
 namespace LanCopyFiles.Pages

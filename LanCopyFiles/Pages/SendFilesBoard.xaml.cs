@@ -13,9 +13,10 @@ using LanCopyFiles.Configs;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Models;
 using LanCopyFiles.Services;
-using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
+using LanCopyFiles.Services.StorageServices;
+using LanCopyFiles.Services.StorageServices.FilePrepare;
 using log4net;
 using Ookii.Dialogs.Wpf;
 using SharpConfig;
@@ -60,7 +61,7 @@ namespace LanCopyFiles.Pages
                 // handling code you have defined.
                 // HandleFileOpen(files[0]);
 
-                await StartCopyingProcess(files);
+                await StartSendingProcess(files);
             }
         }
 
@@ -129,7 +130,7 @@ namespace LanCopyFiles.Pages
             {
                 var filePaths = filesSelectDialog.FileNames;
 
-                await StartCopyingProcess(filePaths);
+                await StartSendingProcess(filePaths);
             }
         }
 
@@ -148,7 +149,7 @@ namespace LanCopyFiles.Pages
             {
                 var folderPaths = foldersSelectDialog.SelectedPaths;
 
-                await StartCopyingProcess(folderPaths);
+                await StartSendingProcess(folderPaths);
             }
         }
 
@@ -167,7 +168,7 @@ namespace LanCopyFiles.Pages
                 //now you have a array of file address 
                 // MessageBox.Show(string.Join("|", filesArray.Cast<string>().ToList()));
 
-                await StartCopyingProcess(filesArray.Cast<string>().ToArray());
+                await StartSendingProcess(filesArray.Cast<string>().ToArray());
             }
             else if (Clipboard.ContainsText())
             {
@@ -180,7 +181,7 @@ namespace LanCopyFiles.Pages
 
         #region Gui cac file den server
 
-        private async Task<List<bool>> SendFilesToServer(string[] thingPaths, string destinationPCIPAddress)
+        private async Task<List<bool>> SendFilesToDestinationPC(string[] thingPaths, string destinationPCIPAddress)
         {
             // Hien thi thong bao trang thai dang ket noi den dia chi IP
             SendingStatusTextBlock.Text = $"Connecting to the destination PC's IP address: {destinationPCIPAddress}";
@@ -236,8 +237,8 @@ namespace LanCopyFiles.Pages
 
         #region Luu lai cac cai dat
 
-        private Section _ipCopyToSectionConfig;
-        private Configuration _config;
+        // private Section _ipCopyToSectionConfig;
+        // private Configuration _config;
 
 
         private void LoadConfigs()
@@ -253,42 +254,16 @@ namespace LanCopyFiles.Pages
         }
         
         #endregion
-
-        #region Chuyen toan bo cac duong dan da chon vao thu muc temp
-
-        private void CopySelectedPathsToTempFolder(string[] paths)
-        {
-            foreach (var path in paths)
-            {
-                // Kiem tra xem duong dan la file hay folder: https://stackoverflow.com/a/1395226/7182661
-                // get the file attributes for file or directory
-                FileAttributes attr = File.GetAttributes(path);
-                
-                if (attr.HasFlag(FileAttributes.Directory))
-                {
-                    // Its a directory
-                
-                    SendingTempFolder.PackFolderReadyForCopying(path);
-                }
-                else
-                {
-                    // Its a file
-                
-                    SendingTempFolder.PackFileReadyForCopying(path);
-                }
-            }
-        }
-
-        #endregion
-
+        
         #region Copy for all
 
-        public async Task StartCopyingProcess(string[] thingPaths)
+        public async Task StartSendingProcess(string[] thingPaths)
         {
             try
             {
                 // Kiem tra xem thu dia chi IP may dich da day du hay chua
                 var destinationPCIPAddress = destinationPCIPAddressTextBox.Text;
+
                 if (!IPAddressValidator.CheckIfValidFormatIPv4Only(destinationPCIPAddress))
                 {
                     OpenMessageBox("Invalid IP address", "The destination PC's IP address is invalid");
@@ -301,22 +276,28 @@ namespace LanCopyFiles.Pages
                 // Chuan bi cac file can copy vao thu muc temp
                 // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
                 SendingProgressBar.IsIndeterminate = true;
-                SendingStatusTextBlock.Text = "Preparing file(s)/folder(s) for transferring";
+                SendingStatusTextBlock.Text = "Getting ready to transfer file(s) or folder(s)";
 
+                // Copy cac file va folder vao thu muc send temp
                 await Task.Run(() =>
                 {
-                    CopySelectedPathsToTempFolder(thingPaths);
+                    AppStorage.Instance.SendingTempFolder.AddMany(thingPaths);
                     Trace.WriteLine("Da copy xong cac file vao thu muc temp");
                 });
 
                 SendingProgressBar.IsIndeterminate = false;
-                SendingStatusTextBlock.Text = "File(s)/folder(s) is ready for transferring";
+                SendingStatusTextBlock.Text = "The file(s)/folder(s) is/are ready for transfer";
 
-                var allFilesInTempFolder = AppTempFolder.GetAllFilePathsInSendTempFolder();
+                // Lay duong dan tat cac cac file da copy vao trong thu muc send temp
+                var allFilesInTempFolder = AppStorage.Instance.SendingTempFolder.GetAll().ToArray();
 
-                var copyResults = await SendFilesToServer(allFilesInTempFolder, destinationPCIPAddress);
+                // Gui file den may dich
+                var copyResults = await SendFilesToDestinationPC(allFilesInTempFolder, destinationPCIPAddress);
+
+                // Dem so luong file va folder da gui thanh cong
                 var thingsSendSuccessCount = copyResults.Count(x => x);
 
+                // Hien thi ket qua
                 ShowSnackbar("All the work has been completed!",
                     $"There are {thingsSendSuccessCount} file(s) or folder(s) that were successfully sent and {thingPaths.Length - thingsSendSuccessCount} that were not");
 
@@ -331,7 +312,7 @@ namespace LanCopyFiles.Pages
             finally
             {
                 // Xoa toan bo file trong cac thu muc send-temp, receive-temp
-                AppTempFolder.DeleteAllFilesInTempFolder();
+                AppStorage.Instance.ClearTempFolders();
 
                 // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
                 FilesPickerCardAction.IsEnabled = true;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Threading;
-using LanCopyFiles.Services.FilePrepare;
 using LanCopyFiles.Services.SendReceiveServices;
+using LanCopyFiles.Services.StorageServices;
 
 namespace LanCopyFiles
 {
@@ -17,8 +17,8 @@ namespace LanCopyFiles
         {
             InitializeComponent();
 
-            SendingTempFolder.EnsureSendTempFolderExist();
-            ReceivingTempFolder.EnsureReceiveTempFolderExist();
+            // Kiem tra xem cac thuc muc send temp va receive temp da ton tai hay chua, neu chua co thi tao cac thu muc nay
+            AppStorage.Instance.EnsureTempFoldersExist();
 
             _receiverService = FileReceivingService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>
@@ -41,8 +41,8 @@ namespace LanCopyFiles
         // Nguon: https://stackoverflow.com/q/2688923/7182661
         private void Window_Closed(object sender, EventArgs e)
         {
-            // Xoa toan bo cac file trong thu muc temp
-            AppTempFolder.DeleteAllFilesInTempFolder();
+            // Xoa toan bo cac file trong cac thu muc send temp va receive temp
+            AppStorage.Instance.ClearTempFolders();
 
             // Thoat hoan toan tat ca cac thread
             Environment.Exit(Environment.ExitCode);

@@ -1,12 +1,20 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using LanCopyFiles.Services.FilePrepare;
+using LanCopyFiles.Services.StorageServices.FilePrepare;
 
 namespace LanCopyFiles.Services.StorageServices;
 
 public class AppStorage
 {
+    private static AppStorage _instance;
+
+    public static AppStorage Instance
+    {
+        get { return _instance ??= new AppStorage(); }
+    }
+
+
     private SendingTempFolder _sendingTempFolder;
 
     public SendingTempFolder SendingTempFolder

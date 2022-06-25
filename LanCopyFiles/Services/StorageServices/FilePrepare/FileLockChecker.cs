@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace LanCopyFiles.Services.FilePrepare;
+namespace LanCopyFiles.Services.StorageServices.FilePrepare;
 
 public class FileLockChecker
 {

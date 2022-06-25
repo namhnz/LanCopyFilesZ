@@ -2,7 +2,7 @@
 using System.IO;
 using LanCopyFiles.Services.PackingServices;
 
-namespace LanCopyFiles.Services.FilePrepare;
+namespace LanCopyFiles.Services.StorageServices.FilePrepare;
 
 public class ReceivingTempFolder
 {

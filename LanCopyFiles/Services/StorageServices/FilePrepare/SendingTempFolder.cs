@@ -4,7 +4,7 @@ using System.Linq;
 using LanCopyFiles.Extensions;
 using LanCopyFiles.Services.PackingServices;
 
-namespace LanCopyFiles.Services.FilePrepare
+namespace LanCopyFiles.Services.StorageServices.FilePrepare
 {
     public class SendingTempFolder
     {

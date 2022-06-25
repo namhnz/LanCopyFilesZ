@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\StorageServices\" />
+    <Folder Include="Services\FilePrepare\" />
     <Folder Include="Services\PackingServices\" />
   </ItemGroup>
 
