@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EasyFileTransfer.Model;
 
@@ -21,6 +23,7 @@ namespace EasyFileTransfer
 
         // Nguon: https://stackoverflow.com/a/85188/7182661
         public event EventHandler<DataReceivingArgs> DataStartReceiving;
+
         public void OnDataStartReceiving(string receivingFileName)
         {
             EventHandler<DataReceivingArgs> handler = DataStartReceiving;
@@ -28,6 +31,7 @@ namespace EasyFileTransfer
         }
 
         public event EventHandler<DataReceivingArgs> DataFinishReceiving;
+
         public void OnDataFinishReceiving(string receivingFileName)
         {
             EventHandler<DataReceivingArgs> handler = DataFinishReceiving;
@@ -55,11 +59,12 @@ namespace EasyFileTransfer
                 SocketHandler obj_hadler = new SocketHandler(tc, SaveTo);
                 System.Threading.Thread obj_thread = new System.Threading.Thread(() =>
                     obj_hadler.ProcessSocketRequest(OnDataStartReceiving, OnDataFinishReceiving));
-                
+
                 // Thiet dat chay o che do background de khi thoat app thi thread cung thoat
                 obj_thread.IsBackground = true;
 
                 obj_thread.Start();
+                
             }
         }
     }
@@ -84,7 +89,7 @@ namespace EasyFileTransfer
             Boolean loop_break = false;
             while (true)
             {
-                //byte[] readPbValue = ReadStream();
+                // byte[] readPbValue = ReadStream();
                 if (ns.ReadByte() == 2)
                 {
                     byte[] cmd_buffer = new byte[3];
@@ -96,37 +101,40 @@ namespace EasyFileTransfer
                             //download++;
                             break;
                         case 125:
-                            {
-                                // Custom code
-                                receivingFileName = Encoding.UTF8.GetString(recv_data);
-                                onDataStartReceiving(receivingFileName);
-                                
-                                fs = new FileStream(@"" + SaveTo + receivingFileName, FileMode.CreateNew);
-                                byte[] data_to_send = CreateDataPacket(Encoding.UTF8.GetBytes("126"), Encoding.UTF8.GetBytes(Convert.ToString(current_file_pointer)));
-                                ns.Write(data_to_send, 0, data_to_send.Length);
-                                ns.Flush();
-                            }
+                        {
+                            // Custom code
+                            receivingFileName = Encoding.UTF8.GetString(recv_data);
+                            onDataStartReceiving(receivingFileName);
+
+                            fs = new FileStream(@"" + SaveTo + receivingFileName, FileMode.CreateNew);
+                            byte[] data_to_send = CreateDataPacket(Encoding.UTF8.GetBytes("126"),
+                                Encoding.UTF8.GetBytes(Convert.ToString(current_file_pointer)));
+                            ns.Write(data_to_send, 0, data_to_send.Length);
+                            ns.Flush();
+                        }
                             break;
                         case 127:
-                            {
-                                fs.Seek(current_file_pointer, SeekOrigin.Begin);
-                                fs.Write(recv_data, 0, recv_data.Length);
-                                current_file_pointer = fs.Position;
-                                byte[] data_to_send = CreateDataPacket(Encoding.UTF8.GetBytes("126"), Encoding.UTF8.GetBytes(Convert.ToString(current_file_pointer)));
-                                ns.Write(data_to_send, 0, data_to_send.Length);
-                                ns.Flush();
-                            }
+                        {
+                            fs.Seek(current_file_pointer, SeekOrigin.Begin);
+                            fs.Write(recv_data, 0, recv_data.Length);
+                            current_file_pointer = fs.Position;
+                            byte[] data_to_send = CreateDataPacket(Encoding.UTF8.GetBytes("126"),
+                                Encoding.UTF8.GetBytes(Convert.ToString(current_file_pointer)));
+                            ns.Write(data_to_send, 0, data_to_send.Length);
+                            ns.Flush();
+                        }
                             break;
                         case 128:
-                            {
-                                fs.Close();
-                                loop_break = true;
-                            }
+                        {
+                            fs.Close();
+                            loop_break = true;
+                        }
                             break;
                         default:
                             break;
                     }
                 }
+
                 if (loop_break == true)
                 {
                     ns.Close();
@@ -135,6 +143,7 @@ namespace EasyFileTransfer
             }
 
             onDataFinishReceiving(receivingFileName);
+            
         }
 
         public byte[] ReadStream()
@@ -147,6 +156,7 @@ namespace EasyFileTransfer
             {
                 buff_Length += (char)b;
             }
+
             int data_Length = Convert.ToInt32(buff_Length);
             data_buff = new byte[data_Length];
             int byte_Read = 0;
@@ -177,5 +187,4 @@ namespace EasyFileTransfer
             return ms.ToArray();
         }
     }
-    
 }
