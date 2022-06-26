@@ -24,7 +24,7 @@
             <!--               MediaEnded="DataTransferingGifMediaElement_OnMediaEnded" -->
             <!--               UnloadedBehavior="Manual" -->
             <!-- /> -->
-            <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif" 
+            <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif"
                    gif:AnimationBehavior.RepeatBehavior="Forever"
                    Height="500"></Image>
             <StackPanel HorizontalAlignment="Center">

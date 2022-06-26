@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -17,11 +18,13 @@ public class FileReceivingService: IDisposable
     // private int OPEN_PORT = 8085;
 
     //Nguon: https://stackoverflow.com/a/71522082/7182661
-    private bool _running = false;
     // private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
+
+    private readonly BackgroundWorker _worker;
+
     private EftServer _server =
         new EftServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
-    private readonly Thread _receiverThread;
+    // private readonly Thread _receiverThread;
 
     private static FileReceivingService _instance;
 
@@ -34,36 +37,48 @@ public class FileReceivingService: IDisposable
     private FileReceivingService()
     {
         // Nguon: https://stackoverflow.com/a/634145/7182661
-        
 
-        // Khoi chay server
-        _receiverThread = new Thread(() =>
+
+        // Khoi chay server: https://stackoverflow.com/questions/6481304/how-to-use-a-backgroundworker
+
+        _worker = new BackgroundWorker();
+        _worker.WorkerSupportsCancellation = true;
+
+        _worker.DoWork += (sender, args) =>
         {
             try
             {
-                _server.StartServer();
+                //Check if there is a request to cancel the process
+                if (_worker.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
+
+                _server.StartServer().GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("An error has happened: " + ex.ToString());
             }
-
-        });
-        _receiverThread.IsBackground = true;
+        };
     }
 
     public void StartService()
     {
-        _running = true;
-        _receiverThread.Start();
+        Log.Info("BackgroundWorker nhan file bat dau chay");
+
+        _worker.RunWorkerAsync();
 
     }
 
     public void StopService()
     {
-        _running = false;
-        _receiverThread.Join();
-
+        //Check if background worker is doing anything and send a cancellation if it is
+        if (_worker.IsBusy)
+        {
+            _worker.CancelAsync();
+        }
         // Trace.WriteLine("Stop thread");
         Log.Info("Thread nhan file da tam dung");
     }
