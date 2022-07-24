@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using EasyFileTransfer;
 using LanCopyFiles.Models;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.TransferFilesEngine.Client;

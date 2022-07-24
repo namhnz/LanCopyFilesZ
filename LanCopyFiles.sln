@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanCopyFiles", "LanCopyFiles\LanCopyFiles.csproj", "{DD951790-3EA0-4C6F-94CF-A7A53912406C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyFileTransfer", "EasyFileTransfer\EasyFileTransfer.csproj", "{268D119A-0C5B-47AC-9B80-28B6B3753BD7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LanCopyFiles.TransferFilesEngine", "TransferFilesEngine\LanCopyFiles.TransferFilesEngine.csproj", "{D27AE6B6-108D-4BCB-A529-B46B5D9673E9}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{DD951790-3EA0-4C6F-94CF-A7A53912406C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD951790-3EA0-4C6F-94CF-A7A53912406C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD951790-3EA0-4C6F-94CF-A7A53912406C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{268D119A-0C5B-47AC-9B80-28B6B3753BD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{268D119A-0C5B-47AC-9B80-28B6B3753BD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{268D119A-0C5B-47AC-9B80-28B6B3753BD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{268D119A-0C5B-47AC-9B80-28B6B3753BD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D27AE6B6-108D-4BCB-A529-B46B5D9673E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D27AE6B6-108D-4BCB-A529-B46B5D9673E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D27AE6B6-108D-4BCB-A529-B46B5D9673E9}.Release|Any CPU.ActiveCfg = Release|Any CPU

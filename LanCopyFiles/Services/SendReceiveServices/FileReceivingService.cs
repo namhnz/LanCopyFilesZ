@@ -1,10 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Threading;
-using System.Windows;
-using EasyFileTransfer;
-using EasyFileTransfer.Model;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;

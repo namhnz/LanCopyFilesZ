@@ -34,9 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EasyFileTransfer\EasyFileTransfer.csproj" />
     <ProjectReference Include="..\TransferFilesEngine\LanCopyFiles.TransferFilesEngine.csproj" />
-    <ProjectReference Include="D:\DEV\Test Project\LanCopyFiles.TranferFilesEngine\LanCopyFiles.TransferFilesEngine.csproj" />
   </ItemGroup>
 
 </Project>
