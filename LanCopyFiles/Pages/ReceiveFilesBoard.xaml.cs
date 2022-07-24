@@ -10,6 +10,7 @@ using LanCopyFiles.Services.StorageServices.FilePrepare;
 using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
 using Wpf.Ui.Controls;
+using XamlAnimatedGif;
 using Clipboard = System.Windows.Clipboard;
 
 namespace LanCopyFiles.Pages
@@ -27,6 +28,9 @@ namespace LanCopyFiles.Pages
         public ReceiveFilesBoard()
         {
             InitializeComponent();
+
+            // var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
+            // controller.Pause();
 
             receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
             showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
@@ -88,6 +92,9 @@ namespace LanCopyFiles.Pages
             {
                 receivingFileAnimationStackPanel.Visibility = Visibility.Visible;
                 showAllIPAddressesStackPanel.Visibility = Visibility.Collapsed;
+
+                var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
+                controller.Play();
             });
         }
 
@@ -116,6 +123,9 @@ namespace LanCopyFiles.Pages
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
+                    controller.Pause();
+
                     receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
                     showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
                 });

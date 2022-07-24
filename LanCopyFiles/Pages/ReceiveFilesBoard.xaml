@@ -26,7 +26,8 @@
             <!-- /> -->
             <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif"
                    gif:AnimationBehavior.RepeatBehavior="Forever"
-                   Height="500"></Image>
+                   Height="500"
+                   x:Name="dataTransferingGifImage"></Image>
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock
                     Margin="0,8,0,0"
