@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using EasyFileTransfer;
 using LanCopyFiles.Models;
 using LanCopyFiles.Services.IPAddressManager;
+using LanCopyFiles.TransferFilesEngine.Client;
 using log4net;
 
 namespace LanCopyFiles.Services.SendReceiveServices;
@@ -38,12 +40,12 @@ public class FileSendingService
 
     #region Chuc nang ho tro
 
-    private bool SendFileToDestinationPC(string filePath, string destinationPCIPAddress)
+    private async Task<bool> SendFileToDestinationPC(string filePath, string destinationPCIPAddress)
     {
         try
         {
-            var response = EftClient.Send(filePath, destinationPCIPAddress, IPAddressValidator.APP_DEFAULT_PORT);
-            return response.status == 1;
+            var response = await TFEClientManager.Send(filePath, destinationPCIPAddress, IPAddressValidator.APP_DEFAULT_PORT);
+            return response.Status == 1;
         }
         catch (Exception ex)
         {
@@ -56,7 +58,7 @@ public class FileSendingService
 
 
     // Chi gui cac file, khong gui folder; neu gui cac folder thi nen lai thanh file zip de gui di
-    public List<bool> SendFilesToDestinationPC()
+    public async Task<List<bool>> SendFilesToDestinationPC()
     {
         // Dung de hien thi len thong bao trang thai
         _progressUpdater.StartUpdater();
@@ -75,7 +77,7 @@ public class FileSendingService
                 // Dung de hien thi len thong bao trang thai
                 _sendingFileName = Path.GetFileName(fileFullPath);
 
-                var sendThingResult = SendFileToDestinationPC(fileFullPath, _destinationPCIPAddress);
+                var sendThingResult = await SendFileToDestinationPC(fileFullPath, _destinationPCIPAddress);
                 sendFileResults.Add(sendThingResult);
             }
             else
@@ -106,7 +108,7 @@ public class FileSendingService
         // progressInfo.TotalSendingPercentage = _totalSendingPercentage;
         if (_totalFilesCount > 0)
         {
-            progressInfo.TotalSendingPercentage = EftClient.ProgressValue * 1 /
+            progressInfo.TotalSendingPercentage = TFEClientManager.ProgressValue * 1 /
                                                   (double)_totalFilesCount +
                                                   100 * _sendingFileIndex /
                                                   (double)_totalFilesCount;

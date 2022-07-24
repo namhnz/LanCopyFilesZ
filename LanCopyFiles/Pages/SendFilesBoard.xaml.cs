@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -202,26 +201,20 @@ namespace LanCopyFiles.Pages
             // Hien thi so luong file va folder se copy
             SendingStatusTextBlock.Text = $"There will be {thingPaths.Length} file(s) and folder(s) sent";
 
+            // Tao trinh gui file moi
+            var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
 
-            var sendResultTask = await Task.Run(() =>
-            {
-                // Tao trinh gui file moi
-                var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
+            // Hien thi tien trinh gui file len UI
+            fileSendingService.FilesSendingProgressChanged += OnSendingProgressChanged;
 
-                // Hien thi tien trinh gui file len UI
-                fileSendingService.FilesSendingProgressChanged += OnSendingProgressChanged;
-
-                // Gui file den may dich
-                var sendFileResults = fileSendingService.SendFilesToDestinationPC();
-
-                return sendFileResults;
-            });
-
+            // Gui file den may dich
+            var sendFileResults = await fileSendingService.SendFilesToDestinationPC();
+            
             // Tam dung 2s de progress bar chay len duoc 100%
             await Task.Delay(TimeSpan.FromSeconds(2));
             ClearSendingProgressStatus();
 
-            return sendResultTask;
+            return sendFileResults;
         }
 
         private void ClearSendingProgressStatus()
@@ -300,10 +293,10 @@ namespace LanCopyFiles.Pages
                 var allFilesInTempFolder = AppStorage.Instance.SendingTempFolder.GetAll().ToArray();
 
                 // Gui file den may dich
-                var copyResults = await SendFilesToDestinationPC(allFilesInTempFolder, destinationPCIPAddress);
+                var sendingResults = await SendFilesToDestinationPC(allFilesInTempFolder, destinationPCIPAddress);
 
                 // Dem so luong file va folder da gui thanh cong
-                var thingsSendSuccessCount = copyResults.Count(x => x);
+                var thingsSendSuccessCount = sendingResults.Count(x => x);
 
                 // Hien thi ket qua
                 ShowSnackbar("All the work has been completed!",

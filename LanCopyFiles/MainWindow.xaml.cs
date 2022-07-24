@@ -21,6 +21,7 @@ namespace LanCopyFiles
 
             // Kiem tra xem cac thuc muc send temp va receive temp da ton tai hay chua, neu chua co thi tao cac thu muc nay
             AppStorage.Instance.EnsureTempFoldersExist();
+            AppStorage.Instance.ClearTempFolders();
 
             _receiverService = FileReceivingService.Instance;
             _receiverService.DataStartReceivingOnServer += (sender, args) =>

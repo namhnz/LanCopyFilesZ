@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
-using EasyFileTransfer.Model;
 using LanCopyFiles.Models;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
+using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
-using Wpf.Ui.Common;
 using Wpf.Ui.Controls;
 using Clipboard = System.Windows.Clipboard;
 
@@ -85,7 +82,7 @@ namespace LanCopyFiles.Pages
             Clipboard.SetText(currentConnectionIPAddress);
         }
 
-        private void OnDataStartReceiving(object? sender, DataReceivingArgs args)
+        private void OnDataStartReceiving(object? sender, TFEServerReceivingArgs args)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -94,9 +91,9 @@ namespace LanCopyFiles.Pages
             });
         }
 
-        private async void OnDataFinishReceiving(object? sender, DataReceivingArgs args)
+        private async void OnDataFinishReceiving(object? sender, TFEServerReceivingArgs args)
         {
-            var receivingFileName = args.ReceivingFileName;
+            var receivingFileName = args.FileName;
 
             try
             {
@@ -143,8 +140,10 @@ namespace LanCopyFiles.Pages
             if (AppStorage.Instance.ReceivingTempFolder.IsExistOnDesktop(receivedThingName))
             {
                 // Hoi nguoi dung xem co muon thay the hay khong
+                // replaceResult = OpenConfirmMessageBox("File or folder already exists",
+                //     "There is a file or folder with the same name already existing on your desktop. Do you want to replace that file or folder?");
                 replaceResult = OpenConfirmMessageBox("File or folder already exists",
-                    "There is a file or folder with the same name already existing on your desktop. Do you want to replace that file or folder?");
+                    "Do you want to replace the existing file or folder?");
             }
 
             // Tien hanh di chuyen file hoac folder ra desktop
@@ -159,6 +158,7 @@ namespace LanCopyFiles.Pages
             return Application.Current.Dispatcher.Invoke(() =>
             {
                 var messageBox = new Wpf.Ui.Controls.MessageBox();
+                messageBox.Width = 400;
                 messageBox.Title = title;
                 messageBox.Content = message;
 

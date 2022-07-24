@@ -6,6 +6,7 @@ using System.Windows;
 using EasyFileTransfer;
 using EasyFileTransfer.Model;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
+using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
 
 namespace LanCopyFiles.Services.SendReceiveServices;
@@ -20,10 +21,10 @@ public class FileReceivingService: IDisposable
     //Nguon: https://stackoverflow.com/a/71522082/7182661
     // private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
 
-    private readonly BackgroundWorker _worker;
+    // private readonly BackgroundWorker _worker;
 
-    private EftServer _server =
-        new EftServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
+    private TFEServer _server =
+        new TFEServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
     // private readonly Thread _receiverThread;
 
     private static FileReceivingService _instance;
@@ -36,51 +37,53 @@ public class FileReceivingService: IDisposable
 
     private FileReceivingService()
     {
-        // Nguon: https://stackoverflow.com/a/634145/7182661
+        // // Nguon: https://stackoverflow.com/a/634145/7182661
+        //
+        //
+        // // Khoi chay server: https://stackoverflow.com/questions/6481304/how-to-use-a-backgroundworker
+        //
+        // _worker = new BackgroundWorker();
+        // _worker.WorkerSupportsCancellation = true;
+        //
+        // _worker.DoWork += (sender, args) =>
+        // {
+        //     try
+        //     {
+        //         //Check if there is a request to cancel the process
+        //         if (_worker.CancellationPending)
+        //         {
+        //             args.Cancel = true;
+        //             return;
+        //         }
+        //
+        //         _server.StartServer().GetAwaiter().GetResult();
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         MessageBox.Show("An error has happened: " + ex.ToString());
+        //     }
+        // };
 
-
-        // Khoi chay server: https://stackoverflow.com/questions/6481304/how-to-use-a-backgroundworker
-
-        _worker = new BackgroundWorker();
-        _worker.WorkerSupportsCancellation = true;
-
-        _worker.DoWork += (sender, args) =>
-        {
-            try
-            {
-                //Check if there is a request to cancel the process
-                if (_worker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    return;
-                }
-
-                _server.StartServer().GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error has happened: " + ex.ToString());
-            }
-        };
+        
     }
 
-    public void StartService()
+    public async void StartService()
     {
-        Log.Info("BackgroundWorker nhan file bat dau chay");
+        Log.Info("Server nhan file bat dau chay");
 
-        _worker.RunWorkerAsync();
+        await _server.StartServer();
 
     }
 
     public void StopService()
     {
-        //Check if background worker is doing anything and send a cancellation if it is
-        if (_worker.IsBusy)
-        {
-            _worker.CancelAsync();
-        }
-        // Trace.WriteLine("Stop thread");
-        Log.Info("Thread nhan file da tam dung");
+        // //Check if background worker is doing anything and send a cancellation if it is
+        // if (_worker.IsBusy)
+        // {
+        //     _worker.CancelAsync();
+        // }
+        // // Trace.WriteLine("Stop thread");
+        Log.Info("Server nhan file da dung lai");
     }
 
     public void Dispose()
@@ -89,15 +92,15 @@ public class FileReceivingService: IDisposable
     }
 
 
-    public event EventHandler<DataReceivingArgs> DataStartReceivingOnServer
+    public event EventHandler<TFEServerReceivingArgs> DataStartReceivingOnServer
     {
-        add { _server.DataStartReceiving += value; }
-        remove { _server.DataStartReceiving -= value; }
+        add => _server.StartReceivingEvent += value;
+        remove => _server.StartReceivingEvent -= value;
     }
 
-    public event EventHandler<DataReceivingArgs> DataFinishReceivingOnServer
+    public event EventHandler<TFEServerReceivingArgs> DataFinishReceivingOnServer
     {
-        add { _server.DataFinishReceiving += value; }
-        remove { _server.DataFinishReceiving -= value; }
+        add => _server.FinishReceivingEvent += value;
+        remove => _server.FinishReceivingEvent -= value;
     }
 }

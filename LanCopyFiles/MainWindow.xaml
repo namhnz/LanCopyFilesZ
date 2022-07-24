@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="700" Width="900"
         WindowStartupLocation="CenterScreen"
-        Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+        Background="{DynamicResource ApplicationBackgroundBrush}"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
@@ -35,7 +35,7 @@
                 Grid.Column="0"
                 Margin="6,0,6,0"
                 Frame="{Binding ElementName=RootFrame}"
-                SelectedPageIndex="0"
+                SelectedPageIndex="1"
                 TransitionType="FadeIn">
                 <ui:NavigationStore.Items>
 
@@ -77,9 +77,8 @@
                         MaxWidth="600"
                         Appearance="Secondary"
                         Icon="DocumentCopy24"
-                        IsShown="False"
                         Message="Just received a file/folder!"
-                        ShowCloseButton="True"
+                        CloseButtonEnabled="True"
                         Timeout="5000" />
                 </Grid>
             </Border>
