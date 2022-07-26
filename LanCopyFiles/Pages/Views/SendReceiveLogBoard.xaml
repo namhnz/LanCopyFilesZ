@@ -1,0 +1,94 @@
+﻿<ui:UiPage x:Class="LanCopyFiles.Pages.Views.SendReceiveLogBoard"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:local="clr-namespace:LanCopyFiles.Pages.Views"
+           xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+           mc:Ignorable="d"
+           d:DesignHeight="450" d:DesignWidth="800"
+           Title="Send Receive Log Board"
+           xmlns:prism="http://prismlibrary.com/"
+           xmlns:models="clr-namespace:LanCopyFiles.Models"
+           prism:ViewModelLocator.AutoWireViewModel="True">
+
+    <StackPanel
+        x:Name="RootPanel"
+        Margin="18,0,18,18">
+        <TextBlock
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            Text="This is where you can see all the files and folders sent to other computers or received from other computers."
+            TextWrapping="WrapWithOverflow" />
+
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="16"
+            Text="All logs" />
+
+        <ListView
+            Margin="0,8,0,0"
+            x:Name="AllSendReceiveLogListView"
+            SelectedIndex="0"
+            ItemsSource="{Binding AllLogs}"
+            Height="400"
+            ScrollViewer.VerticalScrollBarVisibility="Visible"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.ScrollChanged="AllSendReceiveLogListView_OnScrollChanged">
+            <!-- Giu nguyen style: https://stackoverflow.com/a/57519289 -->
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem"
+                       BasedOn="{StaticResource {x:Type ListBoxItem}}" />
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel.Resources>
+                            <DataTemplate x:Key="DirectionRightDataTemplate">
+                                <ui:SymbolIcon Symbol="ChevronRight16"
+                                               Foreground="{Binding Foreground, ElementName=LogDateTextBlock}" />
+                            </DataTemplate>
+                            <DataTemplate x:Key="DirectionLeftDataTemplate">
+                                <ui:SymbolIcon Symbol="ChevronLeft16"
+                                               Foreground="{Binding Foreground, ElementName=LogDateTextBlock}" />
+                            </DataTemplate>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{Binding LogDate, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                   Width="80"
+                                   Name="LogDateTextBlock"
+                        ></TextBlock>
+                        <ui:SymbolIcon Symbol="DeviceMeetingRoom16"
+                                       Foreground="{Binding Foreground, ElementName=LogDateTextBlock}" />
+                        <!-- Change control base data trigger: https://stackoverflow.com/a/41696771 -->
+                        <ContentControl Content="{Binding}">
+                            <ContentControl.Style>
+                                <Style TargetType="{x:Type ContentControl}">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource DirectionRightDataTemplate}"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Direction}"
+                                                     Value="{x:Static models:SendReceiveDirection.Receive}">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource DirectionLeftDataTemplate}"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                        </ContentControl>
+                        <TextBlock Text="{Binding WithIPAddress}" Width="120"/>
+                        <TextBlock Text="{Binding ThingName}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="16"
+            Text="Clear logs" />
+        <TextBlock
+            Margin="0,8,0,0"
+            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            Text="All logs will be deleted" />
+        <Button Content="Clear"
+                Margin="0,8,0,0"
+                Command="{Binding ClearAllLogsCommand}"></Button>
+    </StackPanel>
+</ui:UiPage>

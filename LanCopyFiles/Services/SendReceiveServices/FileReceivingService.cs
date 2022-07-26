@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
@@ -65,7 +66,15 @@ public class FileReceivingService: IDisposable
     {
         Log.Info("Server nhan file bat dau chay");
 
-        await _server.StartServer();
+        try
+        {
+            await _server.StartServer();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex);
+            Debug.WriteLine(ex);
+        }
 
     }
 

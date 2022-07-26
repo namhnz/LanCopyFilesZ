@@ -17,7 +17,7 @@ using log4net;
 using Ookii.Dialogs.Wpf;
 using Wpf.Ui.Controls;
 
-namespace LanCopyFiles.Pages
+namespace LanCopyFiles.Pages.Views
 {
     /// <summary>
     /// Interaction logic for SendFilesBoard.xaml

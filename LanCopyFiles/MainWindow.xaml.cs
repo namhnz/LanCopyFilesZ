@@ -49,5 +49,6 @@ namespace LanCopyFiles
             // Thoat hoan toan tat ca cac thread
             Environment.Exit(Environment.ExitCode);
         }
+        
     }
 }

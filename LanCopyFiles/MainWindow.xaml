@@ -13,6 +13,7 @@
         WindowCornerPreference="Round"
         xmlns:pages="clr-namespace:LanCopyFiles.Pages"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:views="clr-namespace:LanCopyFiles.Pages.Views"
         Closed="Window_Closed">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -43,12 +44,17 @@
                         Content="Send"
                         Icon="DocumentArrowUp16"
                         PageTag="send-data-page"
-                        PageType="{x:Type pages:SendFilesBoard}" />
+                        PageType="{x:Type views:SendFilesBoard}" />
                     <ui:NavigationItem
                         Content="Receive"
                         Icon="DocumentArrowDown16"
                         PageTag="receive-data-page"
-                        PageType="{x:Type pages:ReceiveFilesBoard}" />
+                        PageType="{x:Type views:ReceiveFilesBoard}" />
+                    <ui:NavigationItem
+                        Content="Log"
+                        Icon="DataUsage20"
+                        PageTag="send-receive-log-page"
+                        PageType="{x:Type views:SendReceiveLogBoard}" />
                 </ui:NavigationStore.Items>
             </ui:NavigationStore>
 

@@ -13,7 +13,7 @@ using Wpf.Ui.Controls;
 using XamlAnimatedGif;
 using Clipboard = System.Windows.Clipboard;
 
-namespace LanCopyFiles.Pages
+namespace LanCopyFiles.Pages.Views
 {
     /// <summary>
     /// Interaction logic for ReceiveFilesBoard.xaml
