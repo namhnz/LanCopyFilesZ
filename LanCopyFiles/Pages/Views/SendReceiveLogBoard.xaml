@@ -52,8 +52,8 @@
                                                Foreground="{Binding Foreground, ElementName=LogDateTextBlock}" />
                             </DataTemplate>
                         </StackPanel.Resources>
-                        <TextBlock Text="{Binding LogDate, StringFormat='{}{0:dd/MM/yyyy}'}"
-                                   Width="80"
+                        <TextBlock Text="{Binding LogDate, StringFormat='{}{0:dd/MM/yyyy a\\t h:mm tt}'}"
+                                   Width="150"
                                    Name="LogDateTextBlock"
                         ></TextBlock>
                         <ui:SymbolIcon Symbol="DeviceMeetingRoom16"

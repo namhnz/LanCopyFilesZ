@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Events\" />
     <Folder Include="Pages\ViewModels\" />
     <Folder Include="Services\PackingServices\" />
   </ItemGroup>

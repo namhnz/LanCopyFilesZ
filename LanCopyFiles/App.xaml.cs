@@ -54,6 +54,8 @@ namespace LanCopyFiles
 
             base.OnStartup(e);
 
+            var bootstrapper = new Bootstrapper();
+            bootstrapper.Run();
         }
 
 

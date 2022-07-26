@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using LanCopyFiles.Events;
 using LanCopyFiles.Models;
+using LanCopyFiles.Pages.ViewModels;
 using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
+using Prism.Events;
 using Wpf.Ui.Controls;
 using XamlAnimatedGif;
 using Clipboard = System.Windows.Clipboard;
@@ -20,6 +24,7 @@ namespace LanCopyFiles.Pages.Views
     /// </summary>
     public partial class ReceiveFilesBoard : UiPage
     {
+
         private static readonly ILog Log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -105,6 +110,14 @@ namespace LanCopyFiles.Pages.Views
             try
             {
                 await Task.Run(() => MoveReceivedThingToDesktop(receivingFileName));
+
+                // Them receive log
+                ((ReceiveFileBoardViewModel)this.DataContext).AddNewReceiveLog(new SendReceiveLogItem()
+                {
+                    Direction = SendReceiveDirection.Receive,
+                    ThingName = receivingFileName,
+                    WithIPAddress = args.FromIPAddress
+                });
 
                 // Received file/folder successfully
                 ShowSnackbar("Just receive a file/folder from another PC!",

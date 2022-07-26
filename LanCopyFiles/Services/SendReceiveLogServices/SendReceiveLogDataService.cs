@@ -4,13 +4,9 @@ using LanCopyFiles.Models;
 using System.Text.Json;
 namespace LanCopyFiles.Services.SendReceiveLogServices;
 
-public class SendReceiveLogDataService
+public class SendReceiveLogDataService: ISendReceiveLogDataService
 {
-    private static SendReceiveLogDataService _instance;
-
-    public static SendReceiveLogDataService Instance => _instance ??= new SendReceiveLogDataService();
-
-    private SendReceiveLogDataService()
+    public SendReceiveLogDataService()
     {
         AllLogs = ReadAll();
     }
