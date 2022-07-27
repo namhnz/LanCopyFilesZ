@@ -5,16 +5,9 @@ using LanCopyFiles.Services.StorageServices.FilePrepare;
 
 namespace LanCopyFiles.Services.StorageServices;
 
-public class AppStorage
+public class AppStorage: IAppStorage
 {
-    private static AppStorage _instance;
-
-    public static AppStorage Instance
-    {
-        get { return _instance ??= new AppStorage(); }
-    }
-
-
+    
     private SendingTempFolder _sendingTempFolder;
 
     public SendingTempFolder SendingTempFolder

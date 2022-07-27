@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using LanCopyFiles.Services.SendReceiveLogServices;
+using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.TransferFilesEngine;
 using Prism.Ioc;
 using Prism.Modularity;
@@ -13,6 +14,8 @@ public class Bootstrapper : PrismBootstrapper
 {
     override protected void RegisterTypes(IContainerRegistry containerRegistry)
     {
+
+        containerRegistry.RegisterSingleton<IAppStorage, AppStorage>();
         containerRegistry.RegisterSingleton<ISendReceiveLogDataService, SendReceiveLogDataService>();
     }
 

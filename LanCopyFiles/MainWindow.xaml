@@ -14,7 +14,9 @@
         xmlns:pages="clr-namespace:LanCopyFiles.Pages"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:views="clr-namespace:LanCopyFiles.Pages.Views"
-        Closed="Window_Closed">
+        Closed="Window_Closed"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="137*"/>

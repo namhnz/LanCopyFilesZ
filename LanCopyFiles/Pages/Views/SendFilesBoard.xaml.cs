@@ -24,14 +24,13 @@ namespace LanCopyFiles.Pages.Views
     /// </summary>
     public partial class SendFilesBoard : UiPage
     {
-        private static readonly ILog Log =
-            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
 
         public SendFilesBoard()
         {
             InitializeComponent();
 
-            LoadConfigs();
+            
 
             _filesOrFoldersPickerContainerClickWaitTimer =
                 new DispatcherTimer(
@@ -237,24 +236,7 @@ namespace LanCopyFiles.Pages.Views
 
         #endregion
 
-        #region Luu lai cac cai dat
-
-        // private Section _ipCopyToSectionConfig;
-        // private Configuration _config;
-
-
-        private void LoadConfigs()
-        {
-            var destinationPCIPAddress =
-                GlobalAppConfigs.Instance.SendFilesConfigs.GetSavedDestinationPCIPAddressConfigValue();
-
-            if (!string.IsNullOrEmpty(destinationPCIPAddress))
-            {
-                destinationPCIPAddressTextBox.Text = destinationPCIPAddress;
-            }
-        }
-
-        #endregion
+        
 
         #region Copy for all
 
