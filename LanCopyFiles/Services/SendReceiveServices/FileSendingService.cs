@@ -9,7 +9,7 @@ using log4net;
 
 namespace LanCopyFiles.Services.SendReceiveServices;
 
-public class FileSendingService
+public class FileSendingService: IFileSendingService
 {
     private readonly string[] _sendingFilePaths;
     private readonly string _destinationPCIPAddress;

@@ -6,7 +6,7 @@ using log4net;
 
 namespace LanCopyFiles.Services.SendReceiveServices;
 
-public class FileReceivingService: IDisposable
+public class FileReceivingService: IDisposable, IFileReceivingService
 {
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -21,15 +21,7 @@ public class FileReceivingService: IDisposable
     private TFEServer _server =
         new TFEServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
     // private readonly Thread _receiverThread;
-
-    private static FileReceivingService _instance;
-
-    public static FileReceivingService Instance
-    {
-        get { return _instance ??= new FileReceivingService(); }
-
-    }
-
+    
     private FileReceivingService()
     {
         // // Nguon: https://stackoverflow.com/a/634145/7182661

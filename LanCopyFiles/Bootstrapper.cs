@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using LanCopyFiles.Services.PackingServices;
 using LanCopyFiles.Services.SendReceiveLogServices;
+using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using LanCopyFiles.TransferFilesEngine;
 using Prism.Ioc;
@@ -12,19 +14,22 @@ namespace LanCopyFiles;
 
 public class Bootstrapper : PrismBootstrapper
 {
-    override protected void RegisterTypes(IContainerRegistry containerRegistry)
+    protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
 
         containerRegistry.RegisterSingleton<IAppStorage, AppStorage>();
+        containerRegistry.RegisterSingleton<IZipService, ZipService>();
+        containerRegistry.RegisterSingleton<IFileSendingService, FileSendingService>();
+        containerRegistry.RegisterSingleton<IFileReceivingService, FileReceivingService>();
         containerRegistry.RegisterSingleton<ISendReceiveLogDataService, SendReceiveLogDataService>();
     }
 
-    override protected DependencyObject CreateShell()
+    protected override DependencyObject CreateShell()
     {
         return Container.Resolve<MainWindow>();
     }
 
-    override protected void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
+    protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
     {
         moduleCatalog.AddModule<TransferFilesEngineModule>();
     }

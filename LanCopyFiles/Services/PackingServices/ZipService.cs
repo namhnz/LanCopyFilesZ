@@ -3,15 +3,8 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace LanCopyFiles.Services.PackingServices;
 
-public class ZipService
+public class ZipService: IZipService
 {
-    private static ZipService _instance;
-
-    public static ZipService Instance
-    {
-        get { return _instance ??= new ZipService(); }
-    }
-
     public void CompressFolderToZip(string sourceFolderPath, string destinationZipFilePath)
     {
         // Them duoi .zip vao file neu chua co

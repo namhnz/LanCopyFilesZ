@@ -19,13 +19,6 @@
 
         <StackPanel x:Name="receivingFileAnimationStackPanel"
                     Visibility="Visible">
-            <!-- <MediaElement Source="Images/data-transfering.gif" -->
-            <!--               LoadedBehavior="Play"  -->
-            <!--               Height="500" -->
-            <!--               x:Name="dataTransferingGifMediaElement" -->
-            <!--               MediaEnded="DataTransferingGifMediaElement_OnMediaEnded" -->
-            <!--               UnloadedBehavior="Manual" -->
-            <!-- /> -->
             <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif"
                    gif:AnimationBehavior.RepeatBehavior="Forever"
                    Height="500"
@@ -66,7 +59,8 @@
                                     x:Name="preferredIPAddressTextBlock"
                                     FontSize="12"
                                     Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    Text="To receive files and folders, use this IP address: 127.0.0.1" />
+                                    d:Text="To receive files and folders, use this IP address: 127.0.0.1" 
+                                    Text="{Binding PreferredIPAddress, StringFormat='{}To receive files and folders, use this IP address: {0}'}"/>
                         </StackPanel>
                         <ui:Button
                                 Grid.Column="1"
@@ -76,12 +70,13 @@
                                 Appearance="Secondary"
                                 Content="Copy" 
                                 x:Name="copyIPAddressButton"
-                                Click="copyIPAddressButton_Click"/>
+                                Command="{Binding CopyPreferredIPAddressCommand}"/>
                         </Grid>
                     </ui:CardExpander.Header>
                 
-                <TextBlock Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215" 
-                           x:Name="allIPAddressOnAllAdaperDisplayTextBlock"/>
+                <TextBlock d:Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215" 
+                           x:Name="allIPAddressOnAllAdaperDisplayTextBlock"
+                           Text="{Binding AllIPAddressOnAllAdapterDisplay}"/>
             </ui:CardExpander>
         </StackPanel>
 
