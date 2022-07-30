@@ -6,8 +6,15 @@ using LanCopyFiles.Services.PackingServices;
 
 namespace LanCopyFiles.Services.StorageServices.FilePrepare
 {
-    public class SendingTempFolder
+    public class SendingTempFolder: ISendingTempFolder
     {
+        private readonly IZipService _zipService;
+
+        public SendingTempFolder(IZipService zipService)
+        {
+            _zipService = zipService;
+        }
+
         public void Add(string sourceThingPath)
         {
             if (FileFolderDetector.IsPathFolder(sourceThingPath))
@@ -31,7 +38,7 @@ namespace LanCopyFiles.Services.StorageServices.FilePrepare
                 // }
 
                 // Tao file nen vao trong thu muc temp
-                ZipService.Instance.CompressFolderToZip(sourceFolderPath, destinationZipFilePath);
+                _zipService.CompressFolderToZip(sourceFolderPath, destinationZipFilePath);
             }
             else
             {

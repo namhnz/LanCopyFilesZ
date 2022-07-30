@@ -4,8 +4,8 @@ namespace LanCopyFiles.Services.StorageServices;
 
 public interface IAppStorage
 {
-    public ReceivingTempFolder ReceivingTempFolder { get; }
-    public SendingTempFolder SendingTempFolder { get; }
+    public IReceivingTempFolder ReceivingTempFolder { get; }
+    public ISendingTempFolder SendingTempFolder { get; }
 
     public void ClearTempFolders();
 

@@ -20,7 +20,7 @@ using XamlAnimatedGif;
 
 namespace LanCopyFiles.Pages.ViewModels;
 
-public class ReceiveFileBoardViewModel : BindableBase
+public class ReceiveFilesBoardViewModel : BindableBase
 {
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -30,7 +30,7 @@ public class ReceiveFileBoardViewModel : BindableBase
 
     private readonly IEventAggregator _eventAggregator;
 
-    public ReceiveFileBoardViewModel(IEventAggregator eventAggregator, IFileReceivingService receivingService,
+    public ReceiveFilesBoardViewModel(IEventAggregator eventAggregator, IFileReceivingService receivingService,
         IAppStorage appStorage)
     {
         _eventAggregator = eventAggregator;
@@ -40,8 +40,9 @@ public class ReceiveFileBoardViewModel : BindableBase
         // var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
         // controller.Pause();
 
-        receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
-        showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
+        // receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
+        // showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
+        IsReceivingIndicatorShow = false;
 
         InitIPAddressValues();
 
@@ -52,6 +53,15 @@ public class ReceiveFileBoardViewModel : BindableBase
 
         _receivingService.DataFinishReceivingOnServer += OnDataFinishReceiving;
     }
+
+    private bool _isReceivingIndicatorShow;
+
+    public bool IsReceivingIndicatorShow
+    {
+        get => _isReceivingIndicatorShow;
+        set => SetProperty(ref _isReceivingIndicatorShow, value);
+    }
+
 
     public void AddNewReceiveLog(SendReceiveLogItem logItem)
     {
@@ -127,14 +137,16 @@ public class ReceiveFileBoardViewModel : BindableBase
 
     private void OnDataStartReceiving(object? sender, TFEServerReceivingArgs args)
     {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            receivingFileAnimationStackPanel.Visibility = Visibility.Visible;
-            showAllIPAddressesStackPanel.Visibility = Visibility.Collapsed;
+        // Application.Current.Dispatcher.Invoke(() =>
+        // {
+        //     receivingFileAnimationStackPanel.Visibility = Visibility.Visible;
+        //     showAllIPAddressesStackPanel.Visibility = Visibility.Collapsed;
+        //
+        //     var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
+        //     controller.Play();
+        // });
 
-            var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
-            controller.Play();
-        });
+        IsReceivingIndicatorShow = true;
     }
 
     private async void OnDataFinishReceiving(object? sender, TFEServerReceivingArgs args)
@@ -146,7 +158,7 @@ public class ReceiveFileBoardViewModel : BindableBase
             await Task.Run(() => MoveReceivedThingToDesktop(receivingFileName));
 
             // Them receive log
-            ((ReceiveFileBoardViewModel)this.DataContext).AddNewReceiveLog(new SendReceiveLogItem()
+            AddNewReceiveLog(new SendReceiveLogItem()
             {
                 Direction = SendReceiveDirection.Receive,
                 ThingName = receivingFileName,
@@ -168,14 +180,16 @@ public class ReceiveFileBoardViewModel : BindableBase
             // Xoa file da nhan trong thu muc temp
             _appStorage.ReceivingTempFolder.Delete(receivingFileName);
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
-                controller.Pause();
+            // Application.Current.Dispatcher.Invoke(() =>
+            // {
+            //     var controller = AnimationBehavior.GetAnimator(dataTransferingGifImage);
+            //     controller.Pause();
+            //
+            //     receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
+            //     showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
+            // });
+            IsReceivingIndicatorShow = false;
 
-                receivingFileAnimationStackPanel.Visibility = Visibility.Collapsed;
-                showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
-            });
         }
     }
 

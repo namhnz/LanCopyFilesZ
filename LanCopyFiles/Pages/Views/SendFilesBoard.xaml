@@ -7,7 +7,9 @@
       mc:Ignorable="d"
       d:DesignHeight="450" d:DesignWidth="800"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="Send Files Board">
+      Title="Send Files Board"
+      xmlns:prism="http://prismlibrary.com/"
+      prism:ViewModelLocator.AutoWireViewModel="True">
     <VirtualizingStackPanel
         Margin="18,0,18,18"
         IsVirtualizing="True"
@@ -23,7 +25,8 @@
                        Margin="0,0,4,0"/>
             <ui:TextBox  PlaceholderText="Enter IP address of which PC you want to send files/folder, example: 192.168.1.2" 
                          x:Name="destinationPCIPAddressTextBox"
-                         Margin="0,8,0,0"/>
+                         Margin="0,8,0,0"
+                         Text="{Binding DestinationPCIPAddress}"/>
         </StackPanel>
 
         <TextBlock
@@ -36,13 +39,14 @@
                     Drop="FilesPickerContainerStackPanel_OnDrop">
             <StackPanel.Resources>
                 <ContextMenu x:Key="filesOrFoldersPickerContextMenu"  StaysOpen="true">
-                    <MenuItem Header="Paste" Click="FilesOrFoldersPickerContextMenuPasteItem_OnClick" />
+                    <MenuItem Header="Paste" Click="FilesPickerContextMenuPasteItem_OnClick" />
                 </ContextMenu>
             </StackPanel.Resources>
             <ui:CardAction
                 Icon="SquareHintArrowBack16"
                 x:Name="FilesPickerCardAction"
                 Click="FilesPickerCardAction_OnClick"
+                IsEnabled="{Binding IsFilesPickerAllowChoosing}"
                 MouseDoubleClick="FilesPickerCardAction_OnMouseDoubleClick"
                 ContextMenu="{StaticResource filesOrFoldersPickerContextMenu}">
                 <StackPanel>
@@ -72,16 +76,19 @@
             FontSize="16"
             Text="Copy status" />
         <StackPanel Margin="0 8 4 0">
-            <ProgressBar Margin="0,8,0,0" Value="0" 
+            <ProgressBar Margin="0,8,0,0" d:Value="0" 
+                         Value="{Binding SendingProgressValue}"
                          x:Name="SendingProgressBar"
-                         IsIndeterminate="False"/>
+                         IsIndeterminate="{Binding IsSendingProgressBarIndeterminate}"/>
 
             <!-- <wpfui:TextBox Margin="0,8,0,0" -->
             <!--                IsReadOnly="True" -->
             <!--                x:Name="CopyingStatusTextBlock"> -->
             <!-- </wpfui:TextBox > -->
             <TextBlock Margin="0,8,0,0"
-                       x:Name="SendingStatusTextBlock">
+                       x:Name="SendingStatusTextBlock"
+                       Text="{Binding SendingStatusText}"
+                       d:Text="Sending files...">
             
             </TextBlock>
         </StackPanel>

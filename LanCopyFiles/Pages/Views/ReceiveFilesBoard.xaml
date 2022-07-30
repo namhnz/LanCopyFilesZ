@@ -1,84 +1,106 @@
 ﻿<ui:UiPage x:Class="LanCopyFiles.Pages.Views.ReceiveFilesBoard"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:LanCopyFiles.Pages.Views"
-      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
-      mc:Ignorable="d"
-      d:DesignHeight="600" d:DesignWidth="800"
-      xmlns:prism="http://prismlibrary.com/"
-      prism:ViewModelLocator.AutoWireViewModel="True"
-      Title="Receive Files Board">
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:local="clr-namespace:LanCopyFiles.Pages.Views"
+           xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+           xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
+           mc:Ignorable="d"
+           d:DesignHeight="600" d:DesignWidth="800"
+           xmlns:prism="http://prismlibrary.com/"
+           prism:ViewModelLocator.AutoWireViewModel="True"
+           Title="Receive Files Board">
 
     <VirtualizingStackPanel
         Margin="18,0,18,18"
         IsVirtualizing="True"
         VirtualizationMode="Recycling">
+        <VirtualizingStackPanel.Resources>
+            <DataTemplate x:Key="DataIsReceivingDataTemplate">
+                <StackPanel x:Name="receivingFileAnimationStackPanel"
+                            Visibility="Visible">
+                    <Image
+                        gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif"
+                        gif:AnimationBehavior.RepeatBehavior="Forever"
+                        Height="500"
+                        x:Name="dataTransferingGifImage">
+                    </Image>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock
+                            Margin="0,8,0,0"
+                            FontSize="16"
+                            Text="Data on the way to this computer..." />
+                        <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Text="All files and folders received will be saved on Desktop"
+                                   Margin="0 4 0 0" />
+                    </StackPanel>
+                </StackPanel>
+            </DataTemplate>
+            <DataTemplate x:Key="ShowIPAddressesDataTemplate">
+                <StackPanel x:Name="showAllIPAddressesStackPanel"
+                            Visibility="Visible">
+                    <TextBlock
+                        Margin="0,24,0,0"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Text="Ethernet IP Address" />
+                    <ui:CardExpander
+                        x:Name="currentConnectionIPAddressDisplayCardExpander"
+                        Margin="0,8,0,0"
+                        Icon="Wifi120">
+                        <ui:CardExpander.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock
+                                        FontSize="13"
+                                        FontWeight="Medium"
+                                        Text="Current connection ethernet IP Address" />
+                                    <TextBlock
+                                        x:Name="preferredIPAddressTextBlock"
+                                        FontSize="12"
+                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                        d:Text="To receive files and folders, use this IP address: 127.0.0.1"
+                                        Text="{Binding PreferredIPAddress, StringFormat='{}To receive files and folders, use this IP address: {0}'}" />
+                                </StackPanel>
+                                <ui:Button
+                                    Grid.Column="1"
+                                    Margin="0,0,16,0"
+                                    Padding="30,6"
+                                    VerticalAlignment="Center"
+                                    Appearance="Secondary"
+                                    Content="Copy"
+                                    x:Name="copyIPAddressButton"
+                                    Command="{Binding CopyPreferredIPAddressCommand}" />
+                            </Grid>
+                        </ui:CardExpander.Header>
 
-        <StackPanel x:Name="receivingFileAnimationStackPanel"
-                    Visibility="Visible">
-            <Image gif:AnimationBehavior.SourceUri="pack://application:,,,/LanCopyFiles;component/Images/data-transfering.gif"
-                   gif:AnimationBehavior.RepeatBehavior="Forever"
-                   Height="500"
-                   x:Name="dataTransferingGifImage"></Image>
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock
-                    Margin="0,8,0,0"
-                    FontSize="16"
-                    Text="Data on the way to this computer..."
-                />
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="All files and folders received will be saved on Desktop"
-                           Margin="0 4 0 0"/>
-            </StackPanel>
-        </StackPanel>
+                        <TextBlock d:Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215"
+                                   x:Name="allIPAddressOnAllAdaperDisplayTextBlock"
+                                   Text="{Binding AllIPAddressOnAllAdapterDisplay}" />
+                    </ui:CardExpander>
+                </StackPanel>
+            </DataTemplate>
+        </VirtualizingStackPanel.Resources>
+        <!-- Change control base data trigger: https://stackoverflow.com/a/41696771 -->
+        <ContentControl Content="{Binding}"
+                        x:Name="ReceiveFilesBoardMainDisplayContentControl">
+            <ContentControl.Style>
+                <Style TargetType="{x:Type ContentControl}">
+                    <Setter Property="ContentTemplate" Value="{StaticResource ShowIPAddressesDataTemplate}"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReceivingIndicatorShow}"
+                                     Value="True">
+                            <Setter Property="ContentTemplate" Value="{StaticResource DataIsReceivingDataTemplate}"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
 
-        <StackPanel x:Name="showAllIPAddressesStackPanel"
-                    Visibility="Visible">
-            <TextBlock
-                Margin="0,24,0,0"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="Ethernet IP Address" />
-            <ui:CardExpander
-                x:Name="currentConnectionIPAddressDisplayCardExpander"
-                Margin="0,8,0,0"
-                Icon="Wifi120">
-                <ui:CardExpander.Header>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock
-                                    FontSize="13"
-                                    FontWeight="Medium"
-                                    Text="Current connection ethernet IP Address" />
-                            <TextBlock
-                                    x:Name="preferredIPAddressTextBlock"
-                                    FontSize="12"
-                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                    d:Text="To receive files and folders, use this IP address: 127.0.0.1" 
-                                    Text="{Binding PreferredIPAddress, StringFormat='{}To receive files and folders, use this IP address: {0}'}"/>
-                        </StackPanel>
-                        <ui:Button
-                                Grid.Column="1"
-                                Margin="0,0,16,0"
-                                Padding="30,6"
-                                VerticalAlignment="Center"
-                                Appearance="Secondary"
-                                Content="Copy" 
-                                x:Name="copyIPAddressButton"
-                                Command="{Binding CopyPreferredIPAddressCommand}"/>
-                        </Grid>
-                    </ui:CardExpander.Header>
-                
-                <TextBlock d:Text="10.62.64.215&#x0a;10.62.64.215&#x0a;10.62.64.215" 
-                           x:Name="allIPAddressOnAllAdaperDisplayTextBlock"
-                           Text="{Binding AllIPAddressOnAllAdapterDisplay}"/>
-            </ui:CardExpander>
-        </StackPanel>
 
     </VirtualizingStackPanel>
 </ui:UiPage>

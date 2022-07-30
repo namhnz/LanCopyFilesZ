@@ -22,7 +22,7 @@ public class FileReceivingService: IDisposable, IFileReceivingService
         new TFEServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
     // private readonly Thread _receiverThread;
     
-    private FileReceivingService()
+    public FileReceivingService()
     {
         // // Nguon: https://stackoverflow.com/a/634145/7182661
         //

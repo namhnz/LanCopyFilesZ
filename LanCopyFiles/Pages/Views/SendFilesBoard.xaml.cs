@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using LanCopyFiles.Configs;
-using LanCopyFiles.Extensions;
-using LanCopyFiles.Models;
-using LanCopyFiles.Services.IPAddressManager;
-using LanCopyFiles.Services.SendReceiveServices;
-using LanCopyFiles.Services.StorageServices;
-using log4net;
+using LanCopyFiles.Pages.ViewModels;
 using Ookii.Dialogs.Wpf;
 using Wpf.Ui.Controls;
 
@@ -24,15 +16,15 @@ namespace LanCopyFiles.Pages.Views
     /// </summary>
     public partial class SendFilesBoard : UiPage
     {
-        
+        public SendFilesBoardViewModel ViewModel { get; }
 
         public SendFilesBoard()
         {
             InitializeComponent();
 
-            
+            ViewModel = (SendFilesBoardViewModel)this.DataContext;
 
-            _filesOrFoldersPickerContainerClickWaitTimer =
+            _filesPickerContainerClickWaitTimer =
                 new DispatcherTimer(
                     new TimeSpan(0, 0, 0, 0, 400),
                     DispatcherPriority.Background,
@@ -40,6 +32,8 @@ namespace LanCopyFiles.Pages.Views
                     Dispatcher.CurrentDispatcher);
 
             // InitUpdateProgressBarTimer();
+
+
         }
 
         #region Phan thuc thi khi drag/drop cac file hoac folder vao panel
@@ -56,7 +50,7 @@ namespace LanCopyFiles.Pages.Views
                 // handling code you have defined.
                 // HandleFileOpen(files[0]);
 
-                await StartSendingProcess(files);
+                await ViewModel.StartSendingProcess(files);
             }
         }
 
@@ -65,19 +59,19 @@ namespace LanCopyFiles.Pages.Views
         #region Su dung de phan biet click va double click
 
         // Nguon: https://stackoverflow.com/a/971676/7182661
-        private DispatcherTimer _filesOrFoldersPickerContainerClickWaitTimer;
+        private DispatcherTimer _filesPickerContainerClickWaitTimer;
 
-        private bool _isFilesOrFoldersPickerContainerDirty = false;
+        private bool _isFilesPickerContainerDirty = false;
 
         // Click 1 lan chuot de chon cac file can copy, khong co thu muc
         private async void MouseWaitTimer_Tick(object sender, EventArgs e)
         {
-            _filesOrFoldersPickerContainerClickWaitTimer.Stop();
+            _filesPickerContainerClickWaitTimer.Stop();
 
             // Kiem tra xem co phai lan chay dau tien hay khong
-            if (!_isFilesOrFoldersPickerContainerDirty)
+            if (!_isFilesPickerContainerDirty)
             {
-                _isFilesOrFoldersPickerContainerDirty = true;
+                _isFilesPickerContainerDirty = true;
                 return;
             }
 
@@ -94,20 +88,20 @@ namespace LanCopyFiles.Pages.Views
 
         private void FilesPickerCardAction_OnClick(object sender, RoutedEventArgs e)
         {
-            _filesOrFoldersPickerContainerClickWaitTimer.Start();
+            _filesPickerContainerClickWaitTimer.Start();
         }
 
         // Click 2 lan chuot de chon cac folder can copy, khong co file
-        private void FilesPickerCardAction_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void FilesPickerCardAction_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // Stop the timer from ticking.
-            _filesOrFoldersPickerContainerClickWaitTimer.Stop();
+            _filesPickerContainerClickWaitTimer.Stop();
 
             Trace.WriteLine("Double Click");
             e.Handled = true;
 
             // Nhan dup chuot nen hien thi hop thoai lua chon cac folder
-            ShowFoldersSelectDialog();
+            await ShowFoldersSelectDialog();
         }
 
         #endregion
@@ -116,8 +110,10 @@ namespace LanCopyFiles.Pages.Views
 
         private async Task ShowFilesSelectDialog()
         {
-            var filesSelectDialog = new VistaOpenFileDialog();
-            filesSelectDialog.Multiselect = true;
+            var filesSelectDialog = new VistaOpenFileDialog
+            {
+                Multiselect = true
+            };
 
             var selectResult = filesSelectDialog.ShowDialog();
 
@@ -125,7 +121,7 @@ namespace LanCopyFiles.Pages.Views
             {
                 var filePaths = filesSelectDialog.FileNames;
 
-                await StartSendingProcess(filePaths);
+                await ViewModel.StartSendingProcess(filePaths);
             }
         }
 
@@ -135,8 +131,10 @@ namespace LanCopyFiles.Pages.Views
 
         private async Task ShowFoldersSelectDialog()
         {
-            var foldersSelectDialog = new VistaFolderBrowserDialog();
-            foldersSelectDialog.Multiselect = true;
+            var foldersSelectDialog = new VistaFolderBrowserDialog
+            {
+                Multiselect = true
+            };
 
             var selectResult = foldersSelectDialog.ShowDialog();
 
@@ -144,7 +142,7 @@ namespace LanCopyFiles.Pages.Views
             {
                 var folderPaths = foldersSelectDialog.SelectedPaths;
 
-                await StartSendingProcess(folderPaths);
+                await ViewModel.StartSendingProcess(folderPaths);
             }
         }
 
@@ -153,7 +151,7 @@ namespace LanCopyFiles.Pages.Views
 
         #region Phan thuc thi khi su dung chuot phai copy/paste vao panel
 
-        private async void FilesOrFoldersPickerContextMenuPasteItem_OnClick(object sender, RoutedEventArgs e)
+        private async void FilesPickerContextMenuPasteItem_OnClick(object sender, RoutedEventArgs e)
         {
             // MessageBox.Show("Pasting");
             // Nguon: https://stackoverflow.com/a/68001651/7182661
@@ -163,7 +161,7 @@ namespace LanCopyFiles.Pages.Views
                 //now you have a array of file address 
                 // MessageBox.Show(string.Join("|", filesArray.Cast<string>().ToList()));
 
-                await StartSendingProcess(filesArray.Cast<string>().ToArray());
+                await ViewModel.StartSendingProcess(filesArray.Cast<string>().ToArray());
             }
             else if (Clipboard.ContainsText())
             {
@@ -174,35 +172,15 @@ namespace LanCopyFiles.Pages.Views
         #endregion
 
 
-        #region Hien thi MessageBox
+        
 
-        private void OpenMessageBox(string title, string message)
-        {
-            var messageBox = new Wpf.Ui.Controls.MessageBox();
-
-            // messageBox.ButtonLeftName = "Hello World";
-            messageBox.ButtonRightName = "Close";
-
-            // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
-            messageBox.ButtonRightClick += MessageBox_RightButtonClick;
-
-            messageBox.Show(title, message);
-        }
-
-        private void MessageBox_RightButtonClick(object sender, System.Windows.RoutedEventArgs e)
-        {
-            (sender as Wpf.Ui.Controls.MessageBox)?.Close();
-        }
-
-        #endregion
-
-        #region Hien thi thong bao snackbar
-
-        private void ShowSnackbar(string primaryMessage, string secondaryMessage)
-        {
-            (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(primaryMessage, secondaryMessage);
-        }
-
-        #endregion
+        // #region Hien thi thong bao snackbar
+        //
+        // private void ShowSnackbar(string primaryMessage, string secondaryMessage)
+        // {
+        //     (Application.Current.MainWindow as MainWindow)?.RootSnackbar.Show(primaryMessage, secondaryMessage);
+        // }
+        //
+        // #endregion
     }
 }

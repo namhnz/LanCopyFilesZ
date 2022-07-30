@@ -8,22 +8,14 @@ namespace LanCopyFiles.Services.StorageServices;
 public class AppStorage: IAppStorage
 {
     
-    private SendingTempFolder _sendingTempFolder;
+    public ISendingTempFolder SendingTempFolder { get; private set; }
 
-    public SendingTempFolder SendingTempFolder
+    public IReceivingTempFolder ReceivingTempFolder { get; private set; }
+
+    public AppStorage(ISendingTempFolder sendingTempFolder, IReceivingTempFolder receivingTempFolder)
     {
-        get { return _sendingTempFolder ??= new SendingTempFolder(); }
-    }
-
-    private ReceivingTempFolder _receivingTempFolder;
-
-    public ReceivingTempFolder ReceivingTempFolder
-    {
-        get { return _receivingTempFolder ??= new ReceivingTempFolder(); }
-    }
-
-    public AppStorage()
-    {
+        SendingTempFolder = sendingTempFolder;
+        ReceivingTempFolder = receivingTempFolder;
         EnsureTempFoldersExist();
     }
 

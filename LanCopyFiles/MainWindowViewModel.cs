@@ -1,19 +1,23 @@
 ﻿using System;
-using System.Windows.Threading;
+using LanCopyFiles.Pages.Views;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using Prism.Mvvm;
+using Wpf.Ui.Mvvm.Contracts;
 
 namespace LanCopyFiles;
 
 public class MainWindowViewModel: BindableBase
 {
+    private readonly INavigationService _navigationService;
     private readonly IAppStorage _appStorage;
-    private readonly FileReceivingService _receiverService;
+    private readonly IFileReceivingService _fileReceivingService;
 
-    public MainWindowViewModel(IAppStorage appStorage)
+    public MainWindowViewModel(INavigationService navigationService, IAppStorage appStorage, IFileReceivingService fileReceivingService)
     {
+        _navigationService = navigationService;
         _appStorage = appStorage;
+        _fileReceivingService = fileReceivingService;
 
         Init();
     }
@@ -24,18 +28,18 @@ public class MainWindowViewModel: BindableBase
         _appStorage.EnsureTempFoldersExist();
         _appStorage.ClearTempFolders();
 
-        _receiverService = FileReceivingService.Instance;
-        _receiverService.DataStartReceivingOnServer += (sender, args) =>
+        _fileReceivingService.DataStartReceivingOnServer += (sender, args) =>
         {
-            // Nguon: https://stackoverflow.com/a/21306951/7182661
-
-            Dispatcher.BeginInvoke(
-                DispatcherPriority.Background,
-                new Action(() => RootNavigation.Navigate(("receive-data-page")))
-            );
+            // // Nguon: https://stackoverflow.com/a/21306951/7182661
+            //
+            // Dispatcher.BeginInvoke(
+            //     DispatcherPriority.Background,
+            //     new Action(() => RootNavigation.Navigate(("receive-data-page")))
+            // );
+            _navigationService.Navigate(typeof(ReceiveFilesBoard));
         };
 
-        _receiverService.StartService();
+        _fileReceivingService.StartService();
     }
 
     public void Close()

@@ -4,8 +4,15 @@ using LanCopyFiles.Services.PackingServices;
 
 namespace LanCopyFiles.Services.StorageServices.FilePrepare;
 
-public class ReceivingTempFolder
+public class ReceivingTempFolder: IReceivingTempFolder
 {
+    private readonly IZipService _zipService;
+
+    public ReceivingTempFolder(IZipService zipService)
+    {
+        _zipService = zipService;
+    }
+
     public void Delete(string fileName)
     {
         var filePath = Path.Combine(TempFolderNames.ReceiveTempFolderPath, fileName);
@@ -42,7 +49,7 @@ public class ReceivingTempFolder
             // Giai nen ra file zip desktop
             if (!Directory.Exists(destinationExtractFolderPath))
             {
-                ZipService.Instance.ExtractZipToFolder(filePath, destinationExtractFolderPath);
+                _zipService.ExtractZipToFolder(filePath, destinationExtractFolderPath);
             }
 
             return;

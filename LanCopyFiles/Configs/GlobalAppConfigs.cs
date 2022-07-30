@@ -13,7 +13,7 @@ public class GlobalAppConfigs: IGlobalAppConfigs
     public SendFilesConfigs SendFilesConfigs { get; private set; }
     private Configuration _config;
 
-    private GlobalAppConfigs()
+    public GlobalAppConfigs()
     {
         LoadConfigs();
     }

@@ -12,36 +12,87 @@ using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
 using log4net;
 using Prism.Mvvm;
+using Wpf.Ui.Mvvm.Contracts;
 
 namespace LanCopyFiles.Pages.ViewModels;
 
-public class SendFileBoardViewModel : BindableBase
+public class SendFilesBoardViewModel : BindableBase
 {
     private readonly IAppStorage _appStorage;
+    private readonly IGlobalAppConfigs _globalAppConfigs;
+    private readonly ISnackbarService _snackbarService;
 
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-    public SendFileBoardViewModel(IAppStorage appStorage)
+    public SendFilesBoardViewModel(IAppStorage appStorage, IGlobalAppConfigs globalAppConfigs, ISnackbarService snackbarService)
     {
         _appStorage = appStorage;
+        _globalAppConfigs = globalAppConfigs;
+        _snackbarService = snackbarService;
         LoadConfigs();
+
+        IsFilesPickerAllowChoosing = true;
     }
 
     #region Luu lai cac cai dat
     
     private void LoadConfigs()
     {
-        var destinationPCIPAddress =
-            GlobalAppConfigs.Instance.SendFilesConfigs.GetSavedDestinationPCIPAddressConfigValue();
+        var destinationPCIPAddressSaved =
+            _globalAppConfigs.SendFilesConfigs.GetSavedDestinationPCIPAddressConfigValue();
 
-        if (!string.IsNullOrEmpty(destinationPCIPAddress))
+        if (!string.IsNullOrEmpty(destinationPCIPAddressSaved))
         {
-            destinationPCIPAddressTextBox.Text = destinationPCIPAddress;
+            DestinationPCIPAddress = destinationPCIPAddressSaved;
         }
     }
 
     #endregion
+
+    private string _destinationPCIPAddress;
+
+    public string DestinationPCIPAddress
+    {
+        get => _destinationPCIPAddress;
+        set => SetProperty(ref _destinationPCIPAddress, value);
+    }
+
+
+
+    private string _sendingStatusText;
+
+    public string SendingStatusText
+    {
+        get => _sendingStatusText;
+        set => SetProperty(ref _sendingStatusText, value);
+    }
+
+    private double _sendingProgressValue;
+
+    public double SendingProgressValue
+    {
+        get => _sendingProgressValue;
+        set => SetProperty(ref _sendingProgressValue, value);
+    }
+
+    private bool _isSendingProgressBarIndeterminate;
+
+    public bool IsSendingProgressBarIndeterminate
+    {
+        get => _isSendingProgressBarIndeterminate;
+        set => SetProperty(ref _isSendingProgressBarIndeterminate, value);
+    }
+
+    private bool _isFilesPickerAllowChoosing;
+
+    public bool IsFilesPickerAllowChoosing
+    {
+        get => _isFilesPickerAllowChoosing;
+        set => SetProperty(ref _isFilesPickerAllowChoosing, value);
+    }
+
+
 
 
     #region Gui cac file den server
@@ -49,7 +100,7 @@ public class SendFileBoardViewModel : BindableBase
     private async Task<List<bool>> SendFilesToDestinationPC(string[] thingPaths, string destinationPCIPAddress)
     {
         // Hien thi thong bao trang thai dang ket noi den dia chi IP
-        SendingStatusTextBlock.Text = $"Connecting to the destination PC's IP address: {destinationPCIPAddress}";
+        SendingStatusText = $"Connecting to the destination PC's IP address: {destinationPCIPAddress}";
 
         // Kiem tra xem co ket noi duoc den server khong
         await Task.Run(() =>
@@ -61,14 +112,14 @@ public class SendFileBoardViewModel : BindableBase
         });
 
         // Hien thi thong bao trang thai ket noi thanh cong
-        SendingStatusTextBlock.Text = $"Connected to the destination PC: {destinationPCIPAddress}";
+        SendingStatusText = $"Connected to the destination PC: {destinationPCIPAddress}";
 
         // Luu lai dia chi IP trong truong hop kiem tra ket noi thanh cong
-        GlobalAppConfigs.Instance.SendFilesConfigs
+        _globalAppConfigs.SendFilesConfigs
             .SetSavedDestinationPCIPAddressConfigValue(destinationPCIPAddress);
 
         // Hien thi so luong file va folder se copy
-        SendingStatusTextBlock.Text = $"There will be {thingPaths.Length} file(s) and folder(s) sent";
+        SendingStatusText = $"There will be {thingPaths.Length} file(s) and folder(s) sent";
 
         // Tao trinh gui file moi
         var fileSendingService = new FileSendingService(thingPaths, destinationPCIPAddress);
@@ -88,18 +139,23 @@ public class SendFileBoardViewModel : BindableBase
 
     private void ClearSendingProgressStatus()
     {
-        SendingProgressBar.SetPercent(0);
-        SendingStatusTextBlock.Text = string.Empty;
+        // SendingProgressBar.SetPercent(0);
+        SendingProgressValue = 0;
+        SendingStatusText = string.Empty;
     }
 
     private void OnSendingProgressChanged(object? sender, FilesSendingProgressInfoArgs args)
     {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            SendingProgressBar.SetPercent(args.TotalSendingPercentage);
-            SendingStatusTextBlock.Text =
-                $"Transferring file {args.SendingFileName}: {Math.Ceiling(args.TotalSendingPercentage)}%";
-        });
+        // Application.Current.Dispatcher.Invoke(() =>
+        // {
+        //     SendingProgressBar.SetPercent(args.TotalSendingPercentage);
+        //     SendingStatusText =
+        //         $"Transferring file {args.SendingFileName}: {Math.Ceiling(args.TotalSendingPercentage)}%";
+        // });
+
+        SendingProgressValue = args.TotalSendingPercentage;
+        SendingStatusText =
+            $"Transferring file {args.SendingFileName}: {Math.Ceiling(args.TotalSendingPercentage)}%";
 
         Trace.WriteLine($"Dang gui file :{args.TotalSendingPercentage}%");
     }
@@ -115,21 +171,21 @@ public class SendFileBoardViewModel : BindableBase
         try
         {
             // Kiem tra xem thu dia chi IP may dich da day du hay chua
-            var destinationPCIPAddress = destinationPCIPAddressTextBox.Text;
+            // var destinationPCIPAddress = DestinationPCIPAddress;
 
-            if (!IPAddressValidator.CheckIfValidFormatIPv4Only(destinationPCIPAddress))
+            if (!IPAddressValidator.CheckIfValidFormatIPv4Only(DestinationPCIPAddress))
             {
                 OpenMessageBox("Invalid IP address", "The destination PC's IP address is invalid");
                 return;
             }
 
             // Disable panel truyen file trong khi dang chuyen file sang may khac
-            FilesPickerCardAction.IsEnabled = false;
+            IsFilesPickerAllowChoosing = false;
 
             // Chuan bi cac file can copy vao thu muc temp
             // Chinh thanh progress bar sang trang thai indetermine va status thanh prepare copying file(s)/folder(s)
-            SendingProgressBar.IsIndeterminate = true;
-            SendingStatusTextBlock.Text = "Getting ready to transfer file(s) or folder(s)";
+            IsSendingProgressBarIndeterminate = true;
+            SendingStatusText = "Getting ready to transfer file(s) or folder(s)";
 
             // Copy cac file va folder vao thu muc send temp
             await Task.Run(() =>
@@ -138,20 +194,20 @@ public class SendFileBoardViewModel : BindableBase
                 Trace.WriteLine("Da copy xong cac file vao thu muc temp");
             });
 
-            SendingProgressBar.IsIndeterminate = false;
-            SendingStatusTextBlock.Text = "The file(s)/folder(s) is/are ready for transfer";
+            IsSendingProgressBarIndeterminate = false;
+            SendingStatusText = "The file(s)/folder(s) is/are ready for transfer";
 
             // Lay duong dan tat cac cac file da copy vao trong thu muc send temp
-            var allFilesInTempFolder = AppStorage.Instance.SendingTempFolder.GetAll().ToArray();
+            var allFilesInTempFolder = _appStorage.SendingTempFolder.GetAll().ToArray();
 
             // Gui file den may dich
-            var sendingResults = await SendFilesToDestinationPC(allFilesInTempFolder, destinationPCIPAddress);
+            var sendingResults = await SendFilesToDestinationPC(allFilesInTempFolder, DestinationPCIPAddress);
 
             // Dem so luong file va folder da gui thanh cong
             var thingsSendSuccessCount = sendingResults.Count(x => x);
 
             // Hien thi ket qua
-            ShowSnackbar("All the work has been completed!",
+            _snackbarService.Show("All the work has been completed!",
                 $"There are {thingsSendSuccessCount} file(s) or folder(s) that were successfully sent and {thingPaths.Length - thingsSendSuccessCount} that were not");
         }
         catch (Exception ex)
@@ -164,13 +220,34 @@ public class SendFileBoardViewModel : BindableBase
         finally
         {
             // Xoa toan bo file trong cac thu muc send-temp, receive-temp
-            AppStorage.Instance.ClearTempFolders();
+            _appStorage.ClearTempFolders();
 
             // Enable lai panel truyen file trong sau khi da chuyen file sang may khac
-            FilesPickerCardAction.IsEnabled = true;
+            IsFilesPickerAllowChoosing = true;
         }
     }
 
     #endregion
 
+    #region Hien thi MessageBox
+
+    private void OpenMessageBox(string title, string message)
+    {
+        var messageBox = new Wpf.Ui.Controls.MessageBox();
+
+        // messageBox.ButtonLeftName = "Hello World";
+        messageBox.ButtonRightName = "Close";
+
+        // messageBox.ButtonLeftClick += MessageBox_LeftButtonClick;
+        messageBox.ButtonRightClick += MessageBox_RightButtonClick;
+
+        messageBox.Show(title, message);
+    }
+
+    private void MessageBox_RightButtonClick(object sender, System.Windows.RoutedEventArgs e)
+    {
+        (sender as Wpf.Ui.Controls.MessageBox)?.Close();
+    }
+
+    #endregion
 }
