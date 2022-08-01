@@ -25,12 +25,12 @@ public class ReceiveFilesBoardViewModel : BindableBase
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-    private readonly IFileReceivingService _receivingService;
+    // private readonly IFileReceivingService _receivingService;
     private readonly IAppStorage _appStorage;
 
     private readonly IEventAggregator _eventAggregator;
 
-    public ReceiveFilesBoardViewModel(IEventAggregator eventAggregator, IFileReceivingService receivingService,
+    public ReceiveFilesBoardViewModel(IEventAggregator eventAggregator/*, IFileReceivingService receivingService*/,
         IAppStorage appStorage)
     {
         _eventAggregator = eventAggregator;
@@ -46,12 +46,15 @@ public class ReceiveFilesBoardViewModel : BindableBase
 
         InitIPAddressValues();
 
-        _receivingService = receivingService;
+        // _receivingService = receivingService;
         _appStorage = appStorage;
 
-        _receivingService.DataStartReceivingOnServer += OnDataStartReceiving;
+        // _receivingService.DataStartReceivingOnServer += OnDataStartReceiving;
+        //
+        // _receivingService.DataFinishReceivingOnServer += OnDataFinishReceiving;
 
-        _receivingService.DataFinishReceivingOnServer += OnDataFinishReceiving;
+        _eventAggregator.GetEvent<DataStartReceivingOnServerEvent>().Subscribe(OnDataStartReceiving);
+        _eventAggregator.GetEvent<DataFinishReceivingOnServerEvent>().Subscribe(OnDataFinishReceiving);
     }
 
     private bool _isReceivingIndicatorShow;
@@ -135,7 +138,7 @@ public class ReceiveFilesBoardViewModel : BindableBase
         Clipboard.SetText(currentConnectionIPAddress);
     }
 
-    private void OnDataStartReceiving(object? sender, TFEServerReceivingArgs args)
+    private void OnDataStartReceiving(TFEServerReceivingArgs args)
     {
         // Application.Current.Dispatcher.Invoke(() =>
         // {
@@ -149,7 +152,7 @@ public class ReceiveFilesBoardViewModel : BindableBase
         IsReceivingIndicatorShow = true;
     }
 
-    private async void OnDataFinishReceiving(object? sender, TFEServerReceivingArgs args)
+    private async void OnDataFinishReceiving(TFEServerReceivingArgs args)
     {
         var receivingFileName = args.FileName;
 
@@ -189,7 +192,6 @@ public class ReceiveFilesBoardViewModel : BindableBase
             //     showAllIPAddressesStackPanel.Visibility = Visibility.Visible;
             // });
             IsReceivingIndicatorShow = false;
-
         }
     }
 

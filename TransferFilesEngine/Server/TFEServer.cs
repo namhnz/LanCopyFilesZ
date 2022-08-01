@@ -76,7 +76,7 @@ public class TFEServer
     {
         return RunServer();
     }
-
+    
     private Task RunServer()
     {
         FileWriterEx fileWriter = null;

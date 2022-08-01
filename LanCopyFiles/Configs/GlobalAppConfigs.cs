@@ -6,7 +6,7 @@ namespace LanCopyFiles.Configs;
 
 public class GlobalAppConfigs: IGlobalAppConfigs
 {
-    private const string GLOBAL_APP_CONFIGS_FILE_NAME = "user_data.cfg";
+    private const string GLOBAL_APP_CONFIGS_FILE_NAME = @"Data\user_data.cfg";
 
     #region Luu lai cac cai dat
 

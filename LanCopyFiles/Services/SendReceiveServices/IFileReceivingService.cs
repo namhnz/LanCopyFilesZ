@@ -11,9 +11,5 @@ public interface IFileReceivingService
     {
         StopService();
     }
-
-
-    public event EventHandler<TFEServerReceivingArgs> DataStartReceivingOnServer;
-
-    public event EventHandler<TFEServerReceivingArgs> DataFinishReceivingOnServer;
+    
 }

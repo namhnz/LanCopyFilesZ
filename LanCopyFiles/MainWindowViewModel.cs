@@ -1,23 +1,28 @@
 ﻿using System;
+using LanCopyFiles.Events;
 using LanCopyFiles.Pages.Views;
 using LanCopyFiles.Services.SendReceiveServices;
 using LanCopyFiles.Services.StorageServices;
+using Prism.Events;
 using Prism.Mvvm;
 using Wpf.Ui.Mvvm.Contracts;
 
 namespace LanCopyFiles;
 
-public class MainWindowViewModel: BindableBase
+public class MainWindowViewModel : BindableBase
 {
     private readonly INavigationService _navigationService;
     private readonly IAppStorage _appStorage;
     private readonly IFileReceivingService _fileReceivingService;
+    private readonly IEventAggregator _eventAggregator;
 
-    public MainWindowViewModel(INavigationService navigationService, IAppStorage appStorage, IFileReceivingService fileReceivingService)
+    public MainWindowViewModel(INavigationService navigationService, IAppStorage appStorage,
+        IFileReceivingService fileReceivingService, IEventAggregator eventAggregator)
     {
         _navigationService = navigationService;
         _appStorage = appStorage;
         _fileReceivingService = fileReceivingService;
+        _eventAggregator = eventAggregator;
 
         Init();
     }
@@ -28,16 +33,21 @@ public class MainWindowViewModel: BindableBase
         _appStorage.EnsureTempFoldersExist();
         _appStorage.ClearTempFolders();
 
-        _fileReceivingService.DataStartReceivingOnServer += (sender, args) =>
+        // _fileReceivingService.DataStartReceivingOnServer += (sender, args) =>
+        // {
+        //     // // Nguon: https://stackoverflow.com/a/21306951/7182661
+        //     //
+        //     // Dispatcher.BeginInvoke(
+        //     //     DispatcherPriority.Background,
+        //     //     new Action(() => RootNavigation.Navigate(("receive-data-page")))
+        //     // );
+        //     _navigationService.Navigate(typeof(ReceiveFilesBoard));
+        // };
+
+        _eventAggregator.GetEvent<DataStartReceivingOnServerEvent>().Subscribe(_ =>
         {
-            // // Nguon: https://stackoverflow.com/a/21306951/7182661
-            //
-            // Dispatcher.BeginInvoke(
-            //     DispatcherPriority.Background,
-            //     new Action(() => RootNavigation.Navigate(("receive-data-page")))
-            // );
             _navigationService.Navigate(typeof(ReceiveFilesBoard));
-        };
+        });
 
         _fileReceivingService.StartService();
     }

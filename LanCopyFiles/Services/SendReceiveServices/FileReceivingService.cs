@@ -1,56 +1,30 @@
 ﻿using System;
 using System.Diagnostics;
+using LanCopyFiles.Events;
+using LanCopyFiles.Services.IPAddressManager;
 using LanCopyFiles.Services.StorageServices.FilePrepare;
 using LanCopyFiles.TransferFilesEngine.Server;
 using log4net;
+using Prism.Events;
 
 namespace LanCopyFiles.Services.SendReceiveServices;
 
-public class FileReceivingService: IDisposable, IFileReceivingService
+public class FileReceivingService : IDisposable, IFileReceivingService
 {
+    private readonly IEventAggregator _eventAggregator;
+
     private static readonly ILog Log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-    // private int OPEN_PORT = 8085;
-
-    //Nguon: https://stackoverflow.com/a/71522082/7182661
-    // private EftServer _server = new EftServer(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\", 8085);
-
-    // private readonly BackgroundWorker _worker;
-
-    private TFEServer _server =
-        new TFEServer(TempFolderNames.ReceiveTempFolderPath + "\\", 8085);
-    // private readonly Thread _receiverThread;
     
-    public FileReceivingService()
-    {
-        // // Nguon: https://stackoverflow.com/a/634145/7182661
-        //
-        //
-        // // Khoi chay server: https://stackoverflow.com/questions/6481304/how-to-use-a-backgroundworker
-        //
-        // _worker = new BackgroundWorker();
-        // _worker.WorkerSupportsCancellation = true;
-        //
-        // _worker.DoWork += (sender, args) =>
-        // {
-        //     try
-        //     {
-        //         //Check if there is a request to cancel the process
-        //         if (_worker.CancellationPending)
-        //         {
-        //             args.Cancel = true;
-        //             return;
-        //         }
-        //
-        //         _server.StartServer().GetAwaiter().GetResult();
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         MessageBox.Show("An error has happened: " + ex.ToString());
-        //     }
-        // };
+    private TFEServer _server =
+        new TFEServer(TempFolderNames.ReceiveTempFolderPath + "\\", IPAddressValidator.APP_DEFAULT_PORT);
 
+    public FileReceivingService(IEventAggregator eventAggregator)
+    {
+        _eventAggregator = eventAggregator;
+
+        
         
     }
 
@@ -61,23 +35,26 @@ public class FileReceivingService: IDisposable, IFileReceivingService
         try
         {
             await _server.StartServer();
+
+            _server.StartReceivingEvent += (sender, args) =>
+            {
+                _eventAggregator.GetEvent<DataStartReceivingOnServerEvent>().Publish(args);
+            };
+
+            _server.FinishReceivingEvent += (sender, args) =>
+            {
+                _eventAggregator.GetEvent<DataFinishReceivingOnServerEvent>().Publish(args);
+            };
         }
         catch (Exception ex)
         {
             Log.Error(ex);
             Debug.WriteLine(ex);
         }
-
     }
 
     public void StopService()
     {
-        // //Check if background worker is doing anything and send a cancellation if it is
-        // if (_worker.IsBusy)
-        // {
-        //     _worker.CancelAsync();
-        // }
-        // // Trace.WriteLine("Stop thread");
         Log.Info("Server nhan file da dung lai");
     }
 
@@ -87,15 +64,15 @@ public class FileReceivingService: IDisposable, IFileReceivingService
     }
 
 
-    public event EventHandler<TFEServerReceivingArgs> DataStartReceivingOnServer
-    {
-        add => _server.StartReceivingEvent += value;
-        remove => _server.StartReceivingEvent -= value;
-    }
-
-    public event EventHandler<TFEServerReceivingArgs> DataFinishReceivingOnServer
-    {
-        add => _server.FinishReceivingEvent += value;
-        remove => _server.FinishReceivingEvent -= value;
-    }
+    // public event EventHandler<TFEServerReceivingArgs> DataStartReceivingOnServer
+    // {
+    //     add => _server.StartReceivingEvent += value;
+    //     remove => _server.StartReceivingEvent -= value;
+    // }
+    //
+    // public event EventHandler<TFEServerReceivingArgs> DataFinishReceivingOnServer
+    // {
+    //     add => _server.FinishReceivingEvent += value;
+    //     remove => _server.FinishReceivingEvent -= value;
+    // }
 }

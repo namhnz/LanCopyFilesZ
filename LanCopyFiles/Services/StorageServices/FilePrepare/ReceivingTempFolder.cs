@@ -23,7 +23,7 @@ public class ReceivingTempFolder: IReceivingTempFolder
     }
 
     public void
-        MoveToDesktop(string fileName, bool replaceIfExist) /* Vi du: test_file.zip, dark.mkv, mind-map.zip.iszipfile */
+        MoveToDesktop(string fileName, bool overwriteIfExist) /* Vi du: test_file.zip, dark.mkv, mind-map.zip.iszipfile */
     {
         // Duong dan day du cua file trong thu muc receive temp
         var filePath = Path.Combine(TempFolderNames.ReceiveTempFolderPath, fileName);
@@ -41,7 +41,7 @@ public class ReceivingTempFolder: IReceivingTempFolder
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), folderName);
 
             // Kiem tra xem folder giai nen da ton tai hay chua, neu co thi xoa folder do di
-            if (replaceIfExist && Directory.Exists(destinationExtractFolderPath))
+            if (overwriteIfExist && Directory.Exists(destinationExtractFolderPath))
             {
                 Directory.Delete(destinationExtractFolderPath);
             }
@@ -69,17 +69,21 @@ public class ReceivingTempFolder: IReceivingTempFolder
         var destinationFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
             destinationFileName);
 
-        // Kiem tra xem file da ton tai tren desktop hay chua, neu co thi xoa file do tren desktop di de thay the file moi
-        if (replaceIfExist && File.Exists(destinationFilePath))
-        {
-            File.Delete(destinationFilePath);
-        }
+        // // Kiem tra xem file da ton tai tren desktop hay chua, neu co thi xoa file do tren desktop di de thay the file moi
+        // if (overwriteIfExist && File.Exists(destinationFilePath))
+        // {
+        //     File.Delete(destinationFilePath);
+        // }
+        //
+        // // Di chuyen file ra desktop
+        // if (!File.Exists(destinationFilePath))
+        // {
+        //     File.Move(filePath, destinationFilePath);
+        // }
 
-        // Di chuyen file ra desktop
-        if (!File.Exists(destinationFilePath))
-        {
-            File.Move(filePath, destinationFilePath);
-        }
+        // // Kiem tra xem file da ton tai tren desktop hay chua, neu co thi ghi de file tren desktop bang file moi
+
+        File.Move(filePath, destinationFilePath, overwriteIfExist);
     }
 
     public bool IsExistOnDesktop(string fileName)
